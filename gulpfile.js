@@ -8,25 +8,45 @@ var shell = require('shelljs');
 var minimist = require('minimist');
 var semver = require('semver');
 var fs = require('fs');
+var typescript = require('typescript');
+var gts = require("gulp-typescript");
+var cp = require('child_process');
 
 var _buildRoot = path.join(__dirname, '_build');
 var _packagesRoot = path.join(__dirname, '_packages');
 
+function errorHandler(err) {
+    process.exit(1);
+}
+
 gulp.task('default', ['build']);
 
-gulp.task('build', ['clean'], function () {
-    var extension = gulp.src(['docs/**/*', 'images/**/*', 'LICENSE.txt', 'vss-extension.json'], { base: '.' })
+gulp.task('build', ['clean', 'compile'], function () {
+    var extension = gulp.src(['docs/**/*', 'images/**/*', '!images/**/*.pdn', 'LICENSE.txt', 'vss-extension.json'], { base: '.' })
         .pipe(debug({title: 'extension:'}))
         .pipe(gulp.dest(_buildRoot));
-    var task = gulp.src('task/**/*', { base: '.' })
+    var task = gulp.src(['task/**/*', '!task/**/*.ts'], { base: '.' })
         .pipe(debug({title: 'task:'}))
         .pipe(gulp.dest(_buildRoot));
+
+    getExternalModules();
     
     return merge(extension, task);
 });
 
 gulp.task('clean', function() {
    return del([_buildRoot]);
+});
+
+gulp.task('compile', ['clean'], function() {
+    var taskPath = path.join(__dirname, 'task', '*.ts');
+    var typingsPath = path.join(__dirname, 'typings', '*.d.ts');
+    var tsConfigPath = path.join(__dirname, 'tsconfig.json');
+
+    return gulp.src([taskPath, typingsPath], { base: './task' })
+        .pipe(gts(gts.createProject(tsConfigPath, { typescript: typescript })))
+        .on('error', errorHandler)
+        .pipe(gulp.dest(path.join(_buildRoot, 'task')));
 });
 
 gulp.task('test', ['build'], function() {
@@ -70,6 +90,30 @@ gulp.task('package', ['build'], function() {
     
     shell.exec('tfx extension create --root "' + _buildRoot + '" --output-path "' + _packagesRoot +'"')
 });
+
+getExternalModules = function() {
+    // copy package.json without dev dependencies
+    var libPath = path.join(_buildRoot, 'task');
+
+    var pkg = require('./package.json');
+    delete pkg.devDependencies;
+
+    fs.writeFileSync(path.join(libPath, 'package.json'), JSON.stringify(pkg, null, 4));
+
+    // install modules
+    var npmPath = shell.which('npm');
+
+    shell.pushd(libPath);
+    {
+        var cmdline = '"' + npmPath + '" install';
+        var res = cp.execSync(cmdline);
+        gutil.log(res.toString());
+
+        shell.popd();
+    }
+
+    fs.unlinkSync(path.join(libPath, 'package.json'));
+}
 
 updateExtensionManifest = function(options) {
     var manifestPath = path.join(_buildRoot, 'vss-extension.json')

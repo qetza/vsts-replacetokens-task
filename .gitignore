@@ -2,3 +2,7 @@ node_modules/
 *.vsix
 _build/
 _packages/
+typings/*
+!typings/customs/
+task/*.js
+.taskkey

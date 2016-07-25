@@ -11,8 +11,8 @@
     ],
     "author": "Guillaume Rouchon",
     "version": {
-        "Major": 1,
-        "Minor": 3,
+        "Major": 2,
+        "Minor": 0,
         "Patch": 0
     },
     "minimumAgentVersion": "1.92.0",
@@ -33,9 +33,9 @@
             "name": "rootDirectory",
             "type": "filePath",
             "label": "Root directory",
-            "defaultValue": "$(System.DefaultWorkingDirectory)",
-            "required": true,
-            "helpMarkDown": "Base directory for searching files."
+            "defaultValue": "",
+            "required": false,
+            "helpMarkDown": "Base directory for searching files. If not specified the current working directory will be used."
         },
         {
             "name": "targetFiles",
@@ -43,25 +43,23 @@
             "label": "Target files",
             "defaultValue": "**\\*.config",
             "required": true,
-            "helpMarkDown": "Relative semicolon or newline-separated paths to the files to replace tokens. Wildcards can be used.<br/>Eg: `**\\*.config` for all config files in all sub folders."
+            "helpMarkDown": "Absolute or relative semicolon or newline-separated paths to the files to replace tokens. Wildcards can be used.<br/>Eg: `**\\*.config` for all config files in all sub folders."
         },
         {
             "name": "encoding",
             "type": "pickList",
-            "label": "Output file encoding",
+            "label": "Files encoding",
             "defaultValue": "auto",
-            "required": false,
+            "required": true,
             "options": {
                 "auto": "auto",
-                "Ascii": "ascii",
-                "UTF7": "utf-7",
-                "UTF8": "utf-8",
-                "Unicode": "utf-16",
-                "BigEndianUnicode": "utf-16 (big endian)",
-                "UTF32": "utf-32",
-                "BigEndianUTF32": "utf-32 (big endian)"
+                "ascii": "ascii",
+                "utf-7": "utf-7",
+                "utf-8": "utf-8",
+                "utf-16le": "utf-16",
+                "utf-16be": "utf-16 (big endian)"
             },
-            "helpMarkDown": "Specify the output files encoding.<br/>The 'auto' value reuses the file encoding if a BOM is present; otherwise it will use ascii."
+            "helpMarkDown": "Specify the files encoding.<br/>The 'auto' value will determine the encoding based on the Byte Order Mark (BOM) if present; otherwise it will use ascii."
         },
         {
             "name": "writeBOM",
@@ -70,7 +68,7 @@
             "defaultValue": "true",
             "required": true,
             "helpMarkDown": "If checked writes an unicode Byte Order Mark (BOM).",
-            "visibleRule": "encoding != Ascii"
+            "visibleRule": "encoding != ascii"
         },
         {
             "name": "actionOnMissing",
@@ -116,10 +114,8 @@
     ],
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
     "execution": {
-        "PowerShell": {
-            "target": "$(currentDirectory)\\replace-tokens.ps1",
-            "argumentFormat": "",
-            "workingDirectory": "$(System.DefaultWorkingDirectory)"
+        "Node": {
+            "target": "index.js"
         }
     }
 }

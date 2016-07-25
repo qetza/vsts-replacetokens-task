@@ -25,10 +25,16 @@
     "del": "^2.0.0",
     "gulp": "^3.9.1",
     "gulp-debug": "^2.1.2",
+    "gulp-typescript": "^2.13.6",
     "gulp-util": "^3.0.0",
     "merge-stream": "^1.0.0",
-    "shelljs": "^0.3.0",
     "minimist": "1.1.1",
-    "semver": "4.3.3"
+    "semver": "4.3.3",
+    "shelljs": "^0.3.0",
+    "typescript": "^1.8.10"
+  },
+  "dependencies": {
+    "iconv-lite": "^0.4.13",
+    "vsts-task-lib": "^0.9.5"
   }
 }
