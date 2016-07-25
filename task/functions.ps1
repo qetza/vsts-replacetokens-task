@@ -84,11 +84,11 @@ Function Get-Encoding
     switch ($Name)
     {
         "Ascii" { return New-Object System.Text.ASCIIEncoding }
-        "UTF7" { return New-Object System.Text.UTF7Encoding($WriteBOM) }
+        "UTF7" { return New-Object System.Text.UTF7Encoding }
         "UTF8" { return New-Object System.Text.UTF8Encoding($WriteBOM) }
-        "Unicode" { return New-Object System.Text.UnicodeEncoding($WriteBOM) }
+        "Unicode" { return New-Object System.Text.UnicodeEncoding($false, $WriteBOM) }
         "BigEndianUnicode" { return New-Object System.Text.UnicodeEncoding($true, $WriteBOM) }
-        "UTF32" { return New-Object System.Text.UTF32Encoding($WriteBOM) }
+        "UTF32" { return New-Object System.Text.UTF32Encoding($false, $WriteBOM) }
         "BigEndianUTF32" { return New-Object System.Text.UTF32Encoding($true, $WriteBOM) }
     }
 }

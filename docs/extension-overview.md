@@ -12,6 +12,9 @@ This extension contains a build/release task for VS Team Services to replace tok
 - [View or contribute to the source code](https://github.com/qetza/vsts-replacetokens-task/)
 
 ##Release notes
+**New in 1.3.1**
+- Fix wrong encoding constructors parameters.
+
 **New in 1.3.0**
 - Replaced parameter 'Fail on missing' with 'Action' in 'Missing variables' group.
 - Add 'Keep token' parameter in 'Missing variables' group.
