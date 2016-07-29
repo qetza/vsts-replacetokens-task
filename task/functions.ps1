@@ -93,6 +93,23 @@ Function Get-Encoding
     }
 }
 
+Function Expand-Variables
+{
+    [CmdletBinding()]
+    param(
+        [string] $Text
+    )
+
+    do
+    {
+        $oldText = $Text
+        $Text = [Microsoft.TeamFoundation.DistributedTask.Agent.Common.ContextExtensions]::ExpandVariables($distributedTaskContext, $Text)
+    }
+    while ($Text -ne $oldText)
+
+    $Text
+}
+
 Function Set-Variables
 {
     [CmdletBinding()]
@@ -133,6 +150,10 @@ Function Set-Variables
                 'fail' { Write-Error "Variable '$($Match.Groups[1].Value)' not found." }
                 default { Write-Verbose "Variable '$($Match.Groups[1].Value)' not found." }
             }
+        }
+        else
+        {
+            $value = Expand-Variables -Text $value
         }
         
         Write-Verbose "Replacing '$($Match.Value)' with '${value}'"

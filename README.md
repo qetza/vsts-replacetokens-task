@@ -10,12 +10,15 @@ This extension contains a build/release task for VS Team Services to replace tok
 4. Configure the step.
 
 # Release notes
+**New in 1.4.0**
+- Add variables expansion in variable values.
+
 **New in 1.3.1**
 - Fix wrong encoding constructors parameters.
 
 **New in 1.3.0**
-- Replaced parameter 'Fail on missing' with 'Action' in 'Missing variables' group.
-- Add 'Keep token' parameter in 'Missing variables' group.
+- Replaced parameter _Fail on missing_ with _Action_ in _Missing variables_ group.
+- Add _Keep token_ parameter in 'Missing variables' group.
 - Fix issue on empty file.
 
 **New in 1.2.0**
