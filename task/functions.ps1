@@ -100,12 +100,19 @@ Function Expand-Variables
         [string] $Text
     )
 
+    $maxIteration = 50
+    $iteration = 0
     do
     {
         $oldText = $Text
         $Text = [Microsoft.TeamFoundation.DistributedTask.Agent.Common.ContextExtensions]::ExpandVariables($distributedTaskContext, $Text)
     }
-    while ($Text -ne $oldText)
+    while (($Text -ne $oldText) -and (++$iteration -lt $maxIteration))
+
+    if ($iteration -eq $maxIteration)
+    {
+        Write-Warning "Expand variables: exceeded max iterations."
+    }
 
     $Text
 }
