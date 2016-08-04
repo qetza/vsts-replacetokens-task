@@ -10,6 +10,9 @@ This extension contains a build/release task for VS Team Services to replace tok
 4. Configure the step.
 
 # Release notes
+**New in 1.4.1**
+- Fix missing method issue with new xplat agent (2.104.1)
+
 **New in 1.4.0**
 - Add variables expansion in variable values.
 - Escape token prefix and suffix in regex pattern.
