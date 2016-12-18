@@ -1,5 +1,3 @@
-/// <reference path="../typings/index.d.ts" />
-
 import tl = require('vsts-task-lib/task');
 import trm = require('vsts-task-lib/toolrunner');
 import path = require('path');
@@ -109,7 +107,7 @@ var getEncoding = function (filePath: string): string {
 }
 
 var replaceTokensInFile = function (filePath: string, regex: RegExp, encoding: string, keepToken: boolean, actionOnMissing: string, writeBOM): void {
-    tl.debug('replacing tokens in: ' + filePath);
+    console.log('replacing tokens in: ' + filePath);
 
     // ensure encoding
     if (encoding === ENCODING_AUTO)
@@ -148,25 +146,20 @@ var replaceTokensInFile = function (filePath: string, regex: RegExp, encoding: s
 
     // write file
     fs.chmodSync(filePath, 666);
-    fs.writeFileSync(filePath, iconv.encode(content, encoding, { addBOM: writeBOM }));
+    fs.writeFileSync(filePath, iconv.encode(content, encoding, { addBOM: writeBOM, stripBOM: null, defaultEncoding: null }));
 }
 
 async function run() {
     try {
         // load inputs
-        let root: string = tl.getPathInput('rootDirectory', false, true) || process.cwd();
+        let root: string = tl.getPathInput('rootDirectory', false, true);
         let encoding: string = mapEncoding(tl.getInput('encoding', true));
         let tokenPrefix: string = tl.getInput('tokenPrefix', true).replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         let tokenSuffix: string = tl.getInput('tokenSuffix', true).replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         let keepToken: boolean = tl.getBoolInput('keepToken', true);
         let actionOnMissing: string = tl.getInput('actionOnMissing', true);
         let writeBOM: boolean = tl.getBoolInput('writeBOM', true);
-
-        let targetFiles: string[] = [];
-        tl.getInput('targetFiles', true).replace(/\r?\n/gm, ';').split(';').forEach(x => {
-            if (x)
-                targetFiles.push(x);
-        });
+        let targetFiles: string[] = tl.getDelimitedInput('targetFiles', '\n', true);
 
         // initialize task
         let regex: RegExp = new RegExp(tokenPrefix + '((?:(?!' + tokenSuffix + ').)*)' + tokenSuffix, 'gm');

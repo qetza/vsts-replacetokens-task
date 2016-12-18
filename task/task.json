@@ -15,7 +15,7 @@
         "Minor": 0,
         "Patch": 0
     },
-    "minimumAgentVersion": "1.92.0",
+    "minimumAgentVersion": "2.105.0",
     "groups": [
         {
             "name": "missing",
@@ -43,7 +43,7 @@
             "label": "Target files",
             "defaultValue": "**\\*.config",
             "required": true,
-            "helpMarkDown": "Absolute or relative semicolon or newline-separated paths to the files to replace tokens. Wildcards can be used.<br/>Eg: `**\\*.config` for all config files in all sub folders."
+            "helpMarkDown": "Absolute or relative newline-separated paths to the files to replace tokens. Wildcards can be used.<br/>Eg: `**\\*.config` for all config files in all sub folders."
         },
         {
             "name": "encoding",

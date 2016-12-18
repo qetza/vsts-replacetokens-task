@@ -1,15 +1,14 @@
 var gulp = require('gulp');
-var gutil = require('gulp-util');
 var debug = require('gulp-debug');
-var del = require('del');
-var merge = require('merge-stream');
+var gutil = require('gulp-util');
+var ts = require("gulp-typescript");
 var path = require('path');
 var shell = require('shelljs');
 var minimist = require('minimist');
 var semver = require('semver');
 var fs = require('fs');
-var typescript = require('typescript');
-var gts = require("gulp-typescript");
+var del = require('del');
+var merge = require('merge-stream');
 var cp = require('child_process');
 
 var _buildRoot = path.join(__dirname, '_build');
@@ -40,16 +39,12 @@ gulp.task('clean', function() {
 
 gulp.task('compile', ['clean'], function() {
     var taskPath = path.join(__dirname, 'task', '*.ts');
-    var typingsPath = path.join(__dirname, 'typings', '*.d.ts');
     var tsConfigPath = path.join(__dirname, 'tsconfig.json');
 
-    return gulp.src([taskPath, typingsPath], { base: './task' })
-        .pipe(gts(gts.createProject(tsConfigPath, { typescript: typescript })))
+    return gulp.src([taskPath], { base: './task' })
+        .pipe(ts.createProject(tsConfigPath)())
         .on('error', errorHandler)
         .pipe(gulp.dest(path.join(_buildRoot, 'task')));
-});
-
-gulp.task('test', ['build'], function() {
 });
 
 gulp.task('package', ['build'], function() {
@@ -66,7 +61,7 @@ gulp.task('package', ['build'], function() {
         if (options.version === 'auto') {
             var ref = new Date(2000, 1, 1);
             var now = new Date();
-            var major = 0
+            var major = 1
             var minor = Math.floor((now - ref) / 86400000);
             var patch = Math.floor(Math.floor(now.getSeconds() + (60 * (now.getMinutes() + (60 * now.getHours())))) * 0.5)
             options.version = major + '.' + minor + '.' + patch
