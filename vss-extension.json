@@ -6,9 +6,7 @@
     "public": true,
     "publisher": "qetza",
     "targets": [
-        {
-            "id": "Microsoft.VisualStudio.Services"
-        }
+        { "id": "Microsoft.VisualStudio.Services" }
     ],    
     "description": "Task to replace tokens in files.",
     "categories": [
@@ -23,12 +21,7 @@
         "substitution"
     ],
     "links": {
-        "learn": {
-            "uri": "https://github.com/qetza/vsts-replacetokens-task#readme"
-        },
-        "support": {
-            "uri": "https://github.com/qetza/vsts-replacetokens-task/issues"  
-        }
+        "support": { "uri": "https://github.com/qetza/vsts-replacetokens-task/issues" }
     },
     "icons": {
         "default": "images/extension-icon.png"
@@ -38,21 +31,21 @@
         "theme": "dark"
     },
     "screenshots": [
-        {
-            "path": "images/screenshot-01.png"
-        }
+        { "path": "images/screenshot-01.png" }
     ],
+    "repository": {
+        "type": "git",
+        "uri": "https://github.com/qetza/vsts-replacetokens-task"
+    },
     "content": {
-        "details": {
-            "path": "docs/extension-overview.md"
-        },
-        "license": {
-            "path": "LICENSE.txt"
-        }
+        "details": { "path": "README.md" },
+        "license": { "path": "LICENSE.txt" }
     },
     "files": [
+        { "path": "task" },
         {
-            "path": "task"
+            "path": "images",
+            "addressable": true
         }
     ],
     "contributions": [
@@ -62,9 +55,7 @@
             "targets": [
                 "ms.vss-distributed-task.tasks"
             ],
-            "properties": {
-                "name": "task"
-            }
+            "properties": { "name": "task" }
         }
     ]
 }

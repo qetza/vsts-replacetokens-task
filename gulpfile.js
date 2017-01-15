@@ -21,7 +21,7 @@ function errorHandler(err) {
 gulp.task('default', ['build']);
 
 gulp.task('build', ['clean', 'compile'], function () {
-    var extension = gulp.src(['docs/**/*', 'images/**/*', '!images/**/*.pdn', 'LICENSE.txt', 'vss-extension.json'], { base: '.' })
+    var extension = gulp.src(['README.md', 'images/**/*', '!images/**/*.pdn', 'LICENSE.txt', 'vss-extension.json'], { base: '.' })
         .pipe(debug({title: 'extension:'}))
         .pipe(gulp.dest(_buildRoot));
     var task = gulp.src(['task/**/*', '!task/**/*.ts'], { base: '.' })
@@ -53,7 +53,6 @@ gulp.task('package', ['build'], function() {
         version: args.version,
         stage: args.stage,
         public: args.public,
-        private: args.private,
         taskId: args.taskId
     }
 
@@ -76,7 +75,6 @@ gulp.task('package', ['build'], function() {
         case 'dev':
             options.taskId = '0664FF86-F509-4392-A33C-B2D9239B9AE5';
             options.public = false;
-            options.private = false;
             break;
     }
     

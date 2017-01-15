@@ -1,2 +1,47 @@
-# Replace tokens task for Visual Studio Team Services
-This extension contains a build/release task for VS Team Services to replace tokens in files with variable values.
+[![Donate](https://raw.githubusercontent.com/qetza/vsts-replacetokens-task/master/images/donate.png)](https://www.paypal.me/grouchon/5)
+
+# Replace Tokens task
+Visual Studio Team Services Build and Release extension that replace tokens in files with variable values.
+
+## Usage
+Add a new task, select **Replace Tokens** from the **Utility** category and configure it as needed.
+
+![Replace Tokens parameters](images/task-parameters.png)
+
+Parameters include:
+- **Root directory**: the base directory for searching files. If not specified the default working directory will be used.
+- **Target files**: the absolute or relative newline-separated paths to the files to replace tokens. Wildcards can be used (eg: `**\*.config` for all config files in all sub folders).
+- **Files encoding**: specify the files encoding. The 'auto' value will determine the encoding based on the Byte Order Mark (BOM) if present; otherwise it will use ascii.
+- **Write unicode BOM**: if checked writes an unicode Byte Order Mark (BOM).
+- **Action**: specify the action to take on a missing variable.
+  - _silently continue_: the task will continue without displaying any message.
+  - _log warning_: the task will continue but log a warning with the missing variable name.
+  - _fail_: the task will fail and log the missing variable name.
+- **Keep token**: if checked tokens with missing variables will not be replaced by empty string.
+- **Token prefix**: the prefix of the tokens to search in the target files.
+- **Token suffix**: the suffix of the tokens to search in the target files.
+
+## Tips
+If you want to use tokens in XML based configuration files to be replaced during deployment and also have those files usable for local development you can combine the [Replace Tokens task](https://marketplace.visualstudio.com/items?itemName=qetza.replacetokens) with the [XDT tranform task](https://marketplace.visualstudio.com/items?itemName=qetza.xdttransform):
+- create an XDT transformation file containing your tokens
+- setup your configuration file with local developement values
+- at deployment time
+  - inject your tokens in the configuration file by using your transformation file
+  - replace tokens in your updated configuration file
+
+## Release notes
+**New in 2.0.0**
+- **Breaking change**: Migrated code to typescript to support cross-platform agent. This change requires the use of an agent at least in version 2.105.0.
+- **Breaking change**: File encoding parameter is now used when reading and writing files. Previously it was only used when writing.
+- **Breaking change**: File encoding doesn't support 'utf-32' and 'utf-32 (big endian)' anymore.
+- **Breaking change**: Target files parameter now only uses the new line as a separator for multi-values (previously it used new-line and semi-colon).
+- Removed required root directory, an empty value is equivalent to $(System.DefaultWorkingDirectory).
+
+**New in 1.3.0**
+- Replaced parameter 'Fail on missing' with 'Action' in 'Missing variables' group.
+- Add 'Keep token' parameter in 'Missing variables' group.
+- Fix issue on empty file.
+
+**New in 1.2.0**
+- Add _Root directory_ task parameter to configure file search root directory (contributed by Jesse Houwing).
+- Update _Target files_ task parameter to support newline-separator (contributed by Jesse Houwing).

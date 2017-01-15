@@ -35,7 +35,7 @@
             "label": "Root directory",
             "defaultValue": "",
             "required": false,
-            "helpMarkDown": "Base directory for searching files. If not specified the current working directory will be used."
+            "helpMarkDown": "Base directory for searching files. If not specified the default working directory will be used."
         },
         {
             "name": "targetFiles",
