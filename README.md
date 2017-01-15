@@ -1,4 +1,4 @@
-[![Donate](https://raw.githubusercontent.com/qetza/vsts-replacetokens-task/master/images/donate.png)](https://www.paypal.me/grouchon/5)
+[![Donate](images/donate.png)](https://www.paypal.me/grouchon/5)
 
 # Replace Tokens task
 Visual Studio Team Services Build and Release extension that replace tokens in files with variable values.
