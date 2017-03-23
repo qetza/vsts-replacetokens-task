@@ -145,7 +145,6 @@ var replaceTokensInFile = function (filePath: string, regex: RegExp, encoding: s
     });
 
     // write file
-    fs.chmodSync(filePath, 666);
     fs.writeFileSync(filePath, iconv.encode(content, encoding, { addBOM: writeBOM, stripBOM: null, defaultEncoding: null }));
 }
 
