@@ -30,6 +30,9 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 2.1.0**
+- Add support for comma-separator in _Target files_ ([#35](https://github.com/qetza/vsts-replacetokens-task/issues/35)).
+
 **New in 2.0.2**
 - Fix invalid file permissions after saving files.
 

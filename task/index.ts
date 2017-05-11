@@ -158,7 +158,15 @@ async function run() {
         let keepToken: boolean = tl.getBoolInput('keepToken', true);
         let actionOnMissing: string = tl.getInput('actionOnMissing', true);
         let writeBOM: boolean = tl.getBoolInput('writeBOM', true);
-        let targetFiles: string[] = tl.getDelimitedInput('targetFiles', '\n', true);
+
+        let targetFiles: string[] = [];
+        tl.getDelimitedInput('targetFiles', '\n', true).forEach((x: string) => {
+            if (x)
+                x.split(',').forEach((y: string) => {
+                    if (y)
+                        targetFiles.push(y.trim());
+                })
+        });
 
         // initialize task
         let regex: RegExp = new RegExp(tokenPrefix + '((?:(?!' + tokenSuffix + ').)*)' + tokenSuffix, 'gm');

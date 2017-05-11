@@ -12,8 +12,8 @@
     "author": "Guillaume Rouchon",
     "version": {
         "Major": 2,
-        "Minor": 0,
-        "Patch": 1
+        "Minor": 1,
+        "Patch": 0
     },
     "minimumAgentVersion": "2.105.0",
     "groups": [
@@ -43,7 +43,7 @@
             "label": "Target files",
             "defaultValue": "**\\*.config",
             "required": true,
-            "helpMarkDown": "Absolute or relative newline-separated paths to the files to replace tokens. Wildcards can be used.<br/>Eg: `**\\*.config` for all config files in all sub folders."
+            "helpMarkDown": "Absolute or relative comma or newline-separated paths to the files to replace tokens. Wildcards can be used.<br/>Eg: `**\\*.config` for all config files in all sub folders."
         },
         {
             "name": "encoding",
