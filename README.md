@@ -20,6 +20,7 @@ Parameters include:
 - **Keep token**: if checked tokens with missing variables will not be replaced by empty string.
 - **Token prefix**: the prefix of the tokens to search in the target files.
 - **Token suffix**: the suffix of the tokens to search in the target files.
+- **Empty value**: the variable value that will be replaced with an empty string.
 
 ## Tips
 If you want to use tokens in XML based configuration files to be replaced during deployment and also have those files usable for local development you can combine the [Replace Tokens task](https://marketplace.visualstudio.com/items?itemName=qetza.replacetokens) with the [XDT tranform task](https://marketplace.visualstudio.com/items?itemName=qetza.xdttransform):
@@ -32,6 +33,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 ## Release notes
 **New in 2.1.0**
 - Add support for comma-separator in _Target files_ ([#35](https://github.com/qetza/vsts-replacetokens-task/issues/35)).
+- Add _Empty value_ parameter to allow token replacement with an empty string ([#32](https://github.com/qetza/vsts-replacetokens-task/issues/32)).
 
 **New in 2.0.2**
 - Fix invalid file permissions after saving files.

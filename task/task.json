@@ -110,6 +110,15 @@
             "groupName": "advanced",
             "required": true,
             "helpMarkDown": "The suffix of the tokens to search in the target files."
+        },
+        {
+            "name": "emptyValue",
+            "type": "string",
+            "label": "Empty value",
+            "defaultValue": "(empty)",
+            "groupName": "advanced",
+            "required": false,
+            "helpMarkDown": "The variable value which will be replaced by an empty string."
         }
     ],
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
