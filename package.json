@@ -38,6 +38,6 @@
   },
   "dependencies": {
     "iconv-lite": "^0.4.15",
-    "vsts-task-lib": "^1.1.0"
+    "vsts-task-lib": "^2.0.0"
   }
 }

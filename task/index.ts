@@ -14,31 +14,6 @@ const ENCODING_UTF_16BE: string = 'utf-16be';
 const ACTION_WARN: string = 'warn';
 const ACTION_FAIL: string = 'fail';
 
-var getMatchingFiles = function (pattern: string, root: string): string[] {
-    let matches: string[] = [];
-
-    if (pattern && (pattern.indexOf('*') >= 0 || pattern.indexOf('?') >= 0))
-    {
-        if (!path.isAbsolute(pattern))
-            pattern = path.join(root, pattern);
-        
-        matches = tl.glob(pattern);
-
-        if (!matches.length)
-            tl.warning('no file found for pattern: ' + pattern);
-    }
-    else
-    {
-        matches = pattern.split(';');
-
-        for (let i = 0 ; i < matches.length ; ++i)
-            if (!path.isAbsolute(matches[i]))
-                matches[i] = path.join(root, matches[i]);
-    }
-
-    return matches;
-}
-
 var mapEncoding = function (encoding: string): string {
     switch (encoding)
     {
@@ -176,17 +151,15 @@ async function run() {
         tl.debug('pattern: ' + regex.source);
 
         // process files
-        targetFiles.forEach(pattern => {
-            getMatchingFiles(pattern, root).forEach(filePath => {
-                if (!tl.exist(filePath))
-                {
-                    tl.error('file not found: ' + filePath);
+        tl.findMatch(root, targetFiles).forEach(filePath => {
+            if (!tl.exist(filePath))
+            {
+                tl.error('file not found: ' + filePath);
 
-                    return;
-                }
+                return;
+            }
 
-                replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue);
-            });
+            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue);
         });
     }
     catch (err)
