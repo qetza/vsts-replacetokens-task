@@ -119,6 +119,15 @@
             "groupName": "advanced",
             "required": false,
             "helpMarkDown": "The variable value which will be replaced by an empty string."
+        },
+        {
+            "name": "variablePrefix",
+            "type": "string",
+            "label": "Variable Prefix",
+            "defaultValue": "",
+            "groupName": "advanced",
+            "required": false,
+            "helpMarkDown": "The prefix that will be prepended to the variable name."
         }
     ],
     "instanceNameFormat": "Replace tokens in $(targetFiles)",

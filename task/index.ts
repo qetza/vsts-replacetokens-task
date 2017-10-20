@@ -81,7 +81,7 @@ var getEncoding = function (filePath: string): string {
     }
 }
 
-var replaceTokensInFile = function (filePath: string, regex: RegExp, encoding: string, keepToken: boolean, actionOnMissing: string, writeBOM: boolean, emptyValue: string): void {
+var replaceTokensInFile = function (filePath: string, regex: RegExp, encoding: string, keepToken: boolean, actionOnMissing: string, writeBOM: boolean, emptyValue: string, variablePrefix:string): void {
     console.log('replacing tokens in: ' + filePath);
 
     // ensure encoding
@@ -91,7 +91,18 @@ var replaceTokensInFile = function (filePath: string, regex: RegExp, encoding: s
     // read file and replace tokens
     let content: string = iconv.decode(fs.readFileSync(filePath), encoding);
     content = content.replace(regex, (match, name) => {
-        let value: string = tl.getVariable(name);
+        
+        let prefixedName: string;
+        let value: string;
+
+        if (variablePrefix && variablePrefix.length > 0){
+            prefixedName = variablePrefix + name;
+            value = tl.getVariable(prefixedName);
+        }
+       
+        if (!value){
+            value = tl.getVariable(name);
+        }
 
         if (!value)
         {
@@ -136,6 +147,7 @@ async function run() {
         let actionOnMissing: string = tl.getInput('actionOnMissing', true);
         let writeBOM: boolean = tl.getBoolInput('writeBOM', true);
         let emptyValue: string = tl.getInput('emptyValue', false);
+        let variablePrefix: string = tl.getInput('variablePrefix', false);
 
         let targetFiles: string[] = [];
         tl.getDelimitedInput('targetFiles', '\n', true).forEach((x: string) => {
@@ -159,7 +171,7 @@ async function run() {
                 return;
             }
 
-            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue);
+            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue, variablePrefix);
         });
     }
     catch (err)
