@@ -134,6 +134,7 @@ updateTaskManifest = function(options) {
         manifest.version.Major = semver.major(options.version);
         manifest.version.Minor = semver.minor(options.version);
         manifest.version.Patch = semver.patch(options.version);
+        manifest.helpMarkDown = 'v' + options.version + ' - ' + manifest.helpMarkDown;
     }
     
     if (options.stage) {

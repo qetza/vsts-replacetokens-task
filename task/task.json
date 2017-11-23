@@ -13,7 +13,7 @@
     "version": {
         "Major": 2,
         "Minor": 2,
-        "Patch": 0
+        "Patch": 1
     },
     "minimumAgentVersion": "2.105.0",
     "groups": [
@@ -41,9 +41,9 @@
             "name": "targetFiles",
             "type": "multiLine",
             "label": "Target files",
-            "defaultValue": "**\\*.config",
+            "defaultValue": "**/*.config",
             "required": true,
-            "helpMarkDown": "Absolute or relative comma or newline-separated paths to the files to replace tokens. Wildcards can be used.<br/>Eg: `**\\*.config` for all config files in all sub folders."
+            "helpMarkDown": "Absolute or relative comma or newline-separated paths to the files to replace tokens. Wildcards can be used.<br/>Eg: `**/*.config` for all config files in all sub folders."
         },
         {
             "name": "encoding",
