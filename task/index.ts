@@ -81,7 +81,16 @@ var getEncoding = function (filePath: string): string {
     }
 }
 
-var replaceTokensInFile = function (filePath: string, regex: RegExp, encoding: string, keepToken: boolean, actionOnMissing: string, writeBOM: boolean, emptyValue: string): void {
+var replaceTokensInFile = function (
+    filePath: string, 
+    regex: RegExp, 
+    encoding: string, 
+    keepToken: boolean, 
+    actionOnMissing: string, 
+    writeBOM: boolean, 
+    emptyValue: string,
+    escapeChar: string,
+    charsToEscape: string): void {
     console.log('replacing tokens in: ' + filePath);
 
     // ensure encoding
@@ -118,6 +127,11 @@ var replaceTokensInFile = function (filePath: string, regex: RegExp, encoding: s
         else if (emptyValue && value === emptyValue)
             value = '';
 
+        if (escapeChar && charsToEscape)
+            for (var c of charsToEscape)
+                // split and join to avoid regex and escaping escape char
+                value = value.split(c).join(escapeChar + c);
+
         return value;
     });
 
@@ -136,6 +150,8 @@ async function run() {
         let actionOnMissing: string = tl.getInput('actionOnMissing', true);
         let writeBOM: boolean = tl.getBoolInput('writeBOM', true);
         let emptyValue: string = tl.getInput('emptyValue', false);
+        let escapeChar: string = tl.getInput('escapeChar', false);
+        let charsToEscape: string = tl.getInput('charsToEscape', false);
 
         let targetFiles: string[] = [];
         tl.getDelimitedInput('targetFiles', '\n', true).forEach((x: string) => {
@@ -159,7 +175,7 @@ async function run() {
                 return;
             }
 
-            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue);
+            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue, escapeChar, charsToEscape);
         });
     }
     catch (err)
