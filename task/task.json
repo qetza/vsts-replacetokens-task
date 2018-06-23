@@ -12,7 +12,7 @@
     "author": "Guillaume Rouchon",
     "version": {
         "Major": 2,
-        "Minor": 3,
+        "Minor": 4,
         "Patch": 0
     },
     "minimumAgentVersion": "2.105.0",
@@ -133,6 +133,15 @@
             "label": "Characters to escape",
             "groupName": "advanced",
             "helpMarkDown": "Characters in variable values to escape before replacing tokens."
+        },
+        {
+            "name": "xmlEscape",
+            "type": "boolean",
+            "label": "XML escape",
+            "groupName": "advanced",
+            "defaultValue": "false",
+            "required": "true",
+            "helpMarkDown": "XML escape variable values before replacing tokens."
         }
     ],
     "instanceNameFormat": "Replace tokens in $(targetFiles)",

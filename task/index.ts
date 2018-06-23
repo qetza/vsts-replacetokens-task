@@ -90,7 +90,8 @@ var replaceTokensInFile = function (
     writeBOM: boolean, 
     emptyValue: string,
     escapeChar: string,
-    charsToEscape: string): void {
+    charsToEscape: string,
+    xmlEscape: boolean): void {
     console.log('replacing tokens in: ' + filePath);
 
     // ensure encoding
@@ -132,11 +133,27 @@ var replaceTokensInFile = function (
                 // split and join to avoid regex and escaping escape char
                 value = value.split(c).join(escapeChar + c);
 
+        if(xmlEscape && value) {
+            value = escapeXml(value);
+        }
+
         return value;
     });
 
     // write file
     fs.writeFileSync(filePath, iconv.encode(content, encoding, { addBOM: writeBOM, stripBOM: null, defaultEncoding: null }));
+}
+
+var escapeXml = function (unsafe: string): string {
+    return unsafe.replace(/[<>&'"]/g, function (c) {
+        switch (c) {
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '&': return '&amp;';
+            case '\'': return '&apos;';
+            case '"': return '&quot;';
+        }
+    });
 }
 
 async function run() {
@@ -152,6 +169,7 @@ async function run() {
         let emptyValue: string = tl.getInput('emptyValue', false);
         let escapeChar: string = tl.getInput('escapeChar', false);
         let charsToEscape: string = tl.getInput('charsToEscape', false);
+        let xmlEscape: boolean = tl.getBoolInput('xmlEscape', true);
 
         let targetFiles: string[] = [];
         tl.getDelimitedInput('targetFiles', '\n', true).forEach((x: string) => {
@@ -175,7 +193,7 @@ async function run() {
                 return;
             }
 
-            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue, escapeChar, charsToEscape);
+            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue, escapeChar, charsToEscape, xmlEscape);
         });
     }
     catch (err)
