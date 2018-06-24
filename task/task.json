@@ -150,7 +150,7 @@
             "groupName": "advanced",
             "defaultValue": "false",
             "required": "true",
-            "helpMarkDown": "XML escape variable values before replacing tokens.<br/>When multiple escaping methods are selected, they are applied in the order listed here."
+            "helpMarkDown": "XML escape variable values before replacing tokens. Will not double escape if existing escaping is detected.<br/>When multiple escaping methods are selected, they are applied in the order listed here."
         }
     ],
     "instanceNameFormat": "Replace tokens in $(targetFiles)",

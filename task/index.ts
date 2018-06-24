@@ -150,6 +150,11 @@ var replaceTokensInFile = function (
 }
 
 var escapeXml = function (unsafe: string): string {
+    // Don't double-escape if existing XML escaping is detected.
+    if(unsafe.indexOf('&lt;') || unsafe.indexOf('&gt;') || unsafe.indexOf('&amp;') || unsafe.indexOf('&apos;') || unsafe.indexOf('&quot;')) {       
+       return unsafe;
+    }
+
     return unsafe.replace(/[<>&'"]/g, function (c) {
         switch (c) {
             case '<': return '&lt;';
