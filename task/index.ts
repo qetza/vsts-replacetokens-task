@@ -91,7 +91,8 @@ var replaceTokensInFile = function (
     emptyValue: string,
     escapeChar: string,
     charsToEscape: string,
-    xmlEscape: boolean): void {
+    xmlEscape: boolean,
+    jsonEncode: boolean): void {
     console.log('replacing tokens in: ' + filePath);
 
     // ensure encoding
@@ -133,6 +134,10 @@ var replaceTokensInFile = function (
                 // split and join to avoid regex and escaping escape char
                 value = value.split(c).join(escapeChar + c);
 
+        if(jsonEncode && value) {
+            value = escapeJSON(value);
+        }
+
         if(xmlEscape && value) {
             value = escapeXml(value);
         }
@@ -156,6 +161,22 @@ var escapeXml = function (unsafe: string): string {
     });
 }
 
+var escapeJSON = function (unsafe: string): string {
+    if (unsafe) {
+        unsafe = unsafe.replace(
+        new RegExp("\\'".replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1'), 'g'),
+        "'"
+      );
+      unsafe = unsafe.replace(
+        /"((?:"[^"]*"|[^"])*?)"(?=[:},])(?=(?:"[^"]*"|[^"])*$)/gm,
+        (match, group) => {
+          return '"' + group.replace(/"/g, '\\"') + '"';
+        }
+      );
+    }
+    return unsafe;
+  }
+
 async function run() {
     try {
         // load inputs
@@ -170,6 +191,7 @@ async function run() {
         let escapeChar: string = tl.getInput('escapeChar', false);
         let charsToEscape: string = tl.getInput('charsToEscape', false);
         let xmlEscape: boolean = tl.getBoolInput('xmlEscape', true);
+        let jsonEncode: boolean = tl.getBoolInput('jsonEncode',true);
 
         let targetFiles: string[] = [];
         tl.getDelimitedInput('targetFiles', '\n', true).forEach((x: string) => {
@@ -193,7 +215,7 @@ async function run() {
                 return;
             }
 
-            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue, escapeChar, charsToEscape, xmlEscape);
+            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue, escapeChar, charsToEscape, xmlEscape, jsonEncode);
         });
     }
     catch (err)

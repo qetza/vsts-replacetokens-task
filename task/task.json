@@ -135,13 +135,22 @@
             "helpMarkDown": "Characters in variable values to escape before replacing tokens."
         },
         {
+            "name": "jsonEncode",
+            "type": "boolean",
+            "label": "JSON encode",
+            "groupName": "advanced",
+            "defaultValue": "false",
+            "required": "true",
+            "helpMarkDown": "JSON encode variable values before replacing tokens.<br/>When multiple escaping methods are selected, they are applied in the order listed here."
+        },
+        {
             "name": "xmlEscape",
             "type": "boolean",
             "label": "XML escape",
             "groupName": "advanced",
             "defaultValue": "false",
             "required": "true",
-            "helpMarkDown": "XML escape variable values before replacing tokens."
+            "helpMarkDown": "XML escape variable values before replacing tokens.<br/>When multiple escaping methods are selected, they are applied in the order listed here."
         }
     ],
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
