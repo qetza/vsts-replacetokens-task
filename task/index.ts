@@ -14,6 +14,9 @@ const ENCODING_UTF_16BE: string = 'utf-16be';
 const ACTION_WARN: string = 'warn';
 const ACTION_FAIL: string = 'fail';
 
+const XML_ESCAPE: RegExp = /[<>&'"]/g;
+const JSON_ESCAPE: RegExp = /["\\/\b\f\n\r\t]/g;
+
 var mapEncoding = function (encoding: string): string {
     switch (encoding)
     {
@@ -91,8 +94,8 @@ var replaceTokensInFile = function (
     emptyValue: string,
     escapeChar: string,
     charsToEscape: string,
-    xmlEscape: boolean,
-    jsonEncode: boolean): void {
+    escapeXml: boolean,
+    escapeJson: boolean): void {
     console.log('replacing tokens in: ' + filePath);
 
     // ensure encoding
@@ -134,13 +137,32 @@ var replaceTokensInFile = function (
                 // split and join to avoid regex and escaping escape char
                 value = value.split(c).join(escapeChar + c);
 
-        if(jsonEncode && value) {
-            value = escapeJSON(value);
-        }
+        if (escapeJson)
+            value = value.replace(JSON_ESCAPE, match => {
+                switch (match) {
+                    case '"':
+                    case '\\':
+                    case '/':
+                        return '\\' + match;
+                    
+                    case '\b': return "\\b";
+                    case '\f': return "\\f";
+                    case '\n': return "\\n";
+                    case '\r': return "\\r";
+                    case '\t': return "\\t";
+                }
+            });
 
-        if(xmlEscape && value) {
-            value = escapeXml(value);
-        }
+        if (escapeXml)
+            value = value.replace(XML_ESCAPE, match => {
+                switch (match) {
+                    case '<': return '&lt;';
+                    case '>': return '&gt;';
+                    case '&': return '&amp;';
+                    case '\'': return '&apos;';
+                    case '"': return '&quot;';
+                }
+            });
 
         return value;
     });
@@ -148,39 +170,6 @@ var replaceTokensInFile = function (
     // write file
     fs.writeFileSync(filePath, iconv.encode(content, encoding, { addBOM: writeBOM, stripBOM: null, defaultEncoding: null }));
 }
-
-var escapeXml = function (unsafe: string): string {
-    // Don't double-escape if existing XML escaping is detected.
-    if(unsafe.indexOf('&lt;') || unsafe.indexOf('&gt;') || unsafe.indexOf('&amp;') || unsafe.indexOf('&apos;') || unsafe.indexOf('&quot;')) {       
-       return unsafe;
-    }
-
-    return unsafe.replace(/[<>&'"]/g, function (c) {
-        switch (c) {
-            case '<': return '&lt;';
-            case '>': return '&gt;';
-            case '&': return '&amp;';
-            case '\'': return '&apos;';
-            case '"': return '&quot;';
-        }
-    });
-}
-
-var escapeJSON = function (unsafe: string): string {
-    if (unsafe) {
-        unsafe = unsafe.replace(
-        new RegExp("\\'".replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1'), 'g'),
-        "'"
-      );
-      unsafe = unsafe.replace(
-        /"((?:"[^"]*"|[^"])*?)"(?=[:},])(?=(?:"[^"]*"|[^"])*$)/gm,
-        (match, group) => {
-          return '"' + group.replace(/"/g, '\\"') + '"';
-        }
-      );
-    }
-    return unsafe;
-  }
 
 async function run() {
     try {
@@ -195,8 +184,8 @@ async function run() {
         let emptyValue: string = tl.getInput('emptyValue', false);
         let escapeChar: string = tl.getInput('escapeChar', false);
         let charsToEscape: string = tl.getInput('charsToEscape', false);
-        let xmlEscape: boolean = tl.getBoolInput('xmlEscape', true);
-        let jsonEncode: boolean = tl.getBoolInput('jsonEncode',true);
+        let escapeXml: boolean = tl.getBoolInput('xmlEscape', true);
+        let escapeJson: boolean = tl.getBoolInput('jsonEncode',true);
 
         let targetFiles: string[] = [];
         tl.getDelimitedInput('targetFiles', '\n', true).forEach((x: string) => {
@@ -220,7 +209,7 @@ async function run() {
                 return;
             }
 
-            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue, escapeChar, charsToEscape, xmlEscape, jsonEncode);
+            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue, escapeChar, charsToEscape, escapeXml, escapeJson);
         });
     }
     catch (err)
