@@ -21,8 +21,9 @@ Parameters include:
 - **Token prefix**: the prefix of the tokens to search in the target files.
 - **Token suffix**: the suffix of the tokens to search in the target files.
 - **Empty value**: the variable value that will be replaced with an empty string.
-- **Escape character**: the escape character to use when escaping characters in the variable values.
-- **Characters to escape**: characters in variable values to escape before replacing tokens.
+- **Escape type**: specify how to escape variable values.
+- **Escape character**: when using custom escape type, the escape character to use when escaping characters in the variable values.
+- **Characters to escape**: when using custom escape type, characters in variable values to escape before replacing tokens.
 
 ## Tips
 If you want to use tokens in XML based configuration files to be replaced during deployment and also have those files usable for local development you can combine the [Replace Tokens task](https://marketplace.visualstudio.com/items?itemName=qetza.replacetokens) with the [XDT tranform task](https://marketplace.visualstudio.com/items?itemName=qetza.xdttransform):

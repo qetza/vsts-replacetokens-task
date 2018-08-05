@@ -17,6 +17,17 @@ const ACTION_FAIL: string = 'fail';
 const XML_ESCAPE: RegExp = /[<>&'"]/g;
 const JSON_ESCAPE: RegExp = /["\\/\b\f\n\r\t]/g;
 
+interface Options {
+    readonly encoding: string, 
+    readonly keepToken: boolean,
+    readonly actionOnMissing: string, 
+    readonly writeBOM: boolean, 
+    readonly emptyValue: string, 
+    readonly escapeType: string,
+    readonly escapeChar: string, 
+    readonly charsToEscape: string
+}
+
 var mapEncoding = function (encoding: string): string {
     switch (encoding)
     {
@@ -87,19 +98,12 @@ var getEncoding = function (filePath: string): string {
 var replaceTokensInFile = function (
     filePath: string, 
     regex: RegExp, 
-    encoding: string, 
-    keepToken: boolean, 
-    actionOnMissing: string, 
-    writeBOM: boolean, 
-    emptyValue: string,
-    escapeChar: string,
-    charsToEscape: string,
-    escapeXml: boolean,
-    escapeJson: boolean): void {
+    options: Options): void {
     console.log('replacing tokens in: ' + filePath);
 
     // ensure encoding
-    if (encoding === ENCODING_AUTO)
+    let encoding: string = options.encoding;
+    if (options.encoding === ENCODING_AUTO)
         encoding = getEncoding(filePath);
 
     // read file and replace tokens
@@ -109,13 +113,13 @@ var replaceTokensInFile = function (
 
         if (!value)
         {
-            if (keepToken)
+            if (options.keepToken)
                 value = match;
             else
                 value = '';
 
             let message = 'variable not found: ' + name;
-            switch (actionOnMissing)
+            switch (options.actionOnMissing)
             {
                 case ACTION_WARN:
                     tl.warning(message);
@@ -129,63 +133,70 @@ var replaceTokensInFile = function (
                     tl.debug(message);
             }
         }
-        else if (emptyValue && value === emptyValue)
+        else if (options.emptyValue && value === options.emptyValue)
             value = '';
 
-        if (escapeChar && charsToEscape)
-            for (var c of charsToEscape)
-                // split and join to avoid regex and escaping escape char
-                value = value.split(c).join(escapeChar + c);
+        switch (options.escapeType) {
+            case 'json':
+                value = value.replace(JSON_ESCAPE, match => {
+                    switch (match) {
+                        case '"':
+                        case '\\':
+                        case '/':
+                            return '\\' + match;
+                        
+                        case '\b': return "\\b";
+                        case '\f': return "\\f";
+                        case '\n': return "\\n";
+                        case '\r': return "\\r";
+                        case '\t': return "\\t";
+                    }
+                });
+                break;
 
-        if (escapeJson)
-            value = value.replace(JSON_ESCAPE, match => {
-                switch (match) {
-                    case '"':
-                    case '\\':
-                    case '/':
-                        return '\\' + match;
-                    
-                    case '\b': return "\\b";
-                    case '\f': return "\\f";
-                    case '\n': return "\\n";
-                    case '\r': return "\\r";
-                    case '\t': return "\\t";
-                }
-            });
+            case 'xml':
+                value = value.replace(XML_ESCAPE, match => {
+                    switch (match) {
+                        case '<': return '&lt;';
+                        case '>': return '&gt;';
+                        case '&': return '&amp;';
+                        case '\'': return '&apos;';
+                        case '"': return '&quot;';
+                    }
+                });
+                break;
 
-        if (escapeXml)
-            value = value.replace(XML_ESCAPE, match => {
-                switch (match) {
-                    case '<': return '&lt;';
-                    case '>': return '&gt;';
-                    case '&': return '&amp;';
-                    case '\'': return '&apos;';
-                    case '"': return '&quot;';
-                }
-            });
+            case 'custom':
+                if (options.escapeChar && options.charsToEscape)
+                    for (var c of options.charsToEscape)
+                        // split and join to avoid regex and escaping escape char
+                        value = value.split(c).join(options.escapeChar + c);
+                break;
+        }
 
         return value;
     });
 
     // write file
-    fs.writeFileSync(filePath, iconv.encode(content, encoding, { addBOM: writeBOM, stripBOM: null, defaultEncoding: null }));
+    fs.writeFileSync(filePath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
 }
 
 async function run() {
     try {
         // load inputs
         let root: string = tl.getPathInput('rootDirectory', false, true);
-        let encoding: string = mapEncoding(tl.getInput('encoding', true));
         let tokenPrefix: string = tl.getInput('tokenPrefix', true).replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         let tokenSuffix: string = tl.getInput('tokenSuffix', true).replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        let keepToken: boolean = tl.getBoolInput('keepToken', true);
-        let actionOnMissing: string = tl.getInput('actionOnMissing', true);
-        let writeBOM: boolean = tl.getBoolInput('writeBOM', true);
-        let emptyValue: string = tl.getInput('emptyValue', false);
-        let escapeChar: string = tl.getInput('escapeChar', false);
-        let charsToEscape: string = tl.getInput('charsToEscape', false);
-        let escapeXml: boolean = tl.getBoolInput('xmlEscape', true);
-        let escapeJson: boolean = tl.getBoolInput('jsonEncode',true);
+        let options: Options = {
+            encoding: mapEncoding(tl.getInput('encoding', true)),
+            keepToken: tl.getBoolInput('keepToken', true),
+            actionOnMissing: tl.getInput('actionOnMissing', true),
+            writeBOM: tl.getBoolInput('writeBOM', true),
+            emptyValue: tl.getInput('emptyValue', false),
+            escapeType: tl.getInput('escapeType', false),
+            escapeChar: tl.getInput('escapeChar', false),
+            charsToEscape: tl.getInput('charsToEscape', false)
+        };
 
         let targetFiles: string[] = [];
         tl.getDelimitedInput('targetFiles', '\n', true).forEach((x: string) => {
@@ -209,7 +220,7 @@ async function run() {
                 return;
             }
 
-            replaceTokensInFile(filePath, regex, encoding, keepToken, actionOnMissing, writeBOM, emptyValue, escapeChar, charsToEscape, escapeXml, escapeJson);
+            replaceTokensInFile(filePath, regex, options);
         });
     }
     catch (err)
