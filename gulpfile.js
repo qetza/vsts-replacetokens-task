@@ -50,7 +50,7 @@ gulp.task('compile', ['clean'], function() {
 gulp.task('package', ['build'], function() {
     var args = minimist(process.argv.slice(2), {});
     var options = {
-        version: args.version,
+        version: args.ver,
         stage: args.stage,
         public: args.public,
         taskId: args.taskId
