@@ -32,17 +32,17 @@ interface Options {
 }
 
 interface ILogger {
-    debug(message: string),
-    info(message: string),
-    warn(message: string),
-    error(message: string)
+    debug(message: string): void,
+    info(message: string): void,
+    warn(message: string): void,
+    error(message: string): void
 }
 
 class NullLogger implements ILogger {
-    public debug(message: string) {}
-    public info(message: string) {}
-    public warn(message: string) {}
-    public error(message: string) {}
+    public debug(message: string): void {}
+    public info(message: string): void {}
+    public warn(message: string): void {}
+    public error(message: string): void {}
 }
 
 enum LogLevel {
@@ -50,7 +50,7 @@ enum LogLevel {
     Info,
     Warn,
     Error,
-    Off
+    Off = 255
 }
 
 class Logger implements ILogger {
@@ -60,28 +60,28 @@ class Logger implements ILogger {
         this._level = level;
     }
 
-    public debug(message: string) {
+    public debug(message: string): void {
         this.log(LogLevel.Debug, message);
     }
 
-    public info(message: string) {
+    public info(message: string): void {
         this.log(LogLevel.Info, message);
     }
 
-    public warn(message: string) {
+    public warn(message: string): void {
         this.log(LogLevel.Warn, message);
     }
 
-    public error(message: string) {
+    public error(message: string): void {
         this.log(LogLevel.Error, message);
     }
 
-    private log(level: LogLevel, message: string) {
-        tl.debug('_level: ' + this._level + ' / level: ' + level);
-
+    private log(level: LogLevel, message: string): void {
+        // always log debug to system debug
         if (level === LogLevel.Debug)
             tl.debug(message);
         
+        // always set task result on error
         if (level === LogLevel.Error)
             tl.setResult(tl.TaskResult.Failed, message);
 
@@ -277,10 +277,9 @@ var mapLogLevel = function (level: string): LogLevel {
         
         case "off":
             return LogLevel.Off;
-        
-        default:
-            return LogLevel.Info;
     }
+
+    return LogLevel.Info;
 }
 
 async function run() {
