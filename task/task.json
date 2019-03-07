@@ -12,7 +12,7 @@
     "author": "Guillaume Rouchon",
     "version": {
         "Major": 3,
-        "Minor": 0,
+        "Minor": 1,
         "Patch": 0
     },
     "minimumAgentVersion": "2.105.0",
@@ -71,6 +71,18 @@
             "required": true,
             "helpMarkDown": "If checked writes an unicode Byte Order Mark (BOM).",
             "visibleRule": "encoding != ascii && encoding != win1252 && encoding != iso88591"
+        },
+        {
+            "name": "verbosity",
+            "type": "pickList",
+            "label": "Verbosity",
+            "defaultValue": "normal",
+            "options": {
+                "normal": "normal",
+                "detailed": "detailed",
+                "off": "off"
+            },
+            "helpMarkDown": "Specify the logs verbosity level. (error and system debug are always on)"
         },
         {
             "name": "actionOnMissing",
