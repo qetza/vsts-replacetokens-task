@@ -35,6 +35,9 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 3.2.0**
+- Switch to [jschardet](https://github.com/aadsm/jschardet) for encoding detection when selecting `auto` in _File encoding_.
+
 **New in 3.1.0**
 - Add _Verbosity_ parameter to allow detail logs without using `system.debug`.
 

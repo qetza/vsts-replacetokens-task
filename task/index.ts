@@ -1,8 +1,7 @@
 import tl = require('vsts-task-lib/task');
-import trm = require('vsts-task-lib/toolrunner');
-import path = require('path');
 import fs = require('fs');
 import iconv = require('iconv-lite');
+import jschardet = require('jschardet');
 
 const ENCODING_AUTO: string = 'auto';
 const ENCODING_ASCII: string = 'ascii';
@@ -149,30 +148,28 @@ var mapEncoding = function (encoding: string): string {
 }
 
 var getEncoding = function (filePath: string): string {
-    let fd: number = fs.openSync(filePath, 'r');
+    let buffer: Buffer = fs.readFileSync(filePath, { flag: 'r' });
+    let charset: any = jschardet.detect(buffer);
 
-    try
+    switch (charset.encoding)
     {
-        let bytes: Buffer = new Buffer(4);
-        fs.readSync(fd, bytes, 0, 4, 0);
+        case 'ascii':
+            return ENCODING_ASCII;
 
-        let encoding: string = ENCODING_ASCII;
-        if (bytes[0] === 0x2b && bytes[1] === 0x2f && bytes[2] === 0x76 && (bytes[3] === 0x38 || bytes[3] === 0x39 || bytes[3] === 0x2b || bytes[3] === 0x2f))
-            encoding = ENCODING_UTF_7;
-        else if (bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf)
-            encoding = ENCODING_UTF_8
-        else if (bytes[0] === 0xfe && bytes[1] === 0xff)
-            encoding = ENCODING_UTF_16BE
-        else if (bytes[0] === 0xff && bytes[1] === 0xfe)
-            encoding = ENCODING_UTF_16LE
-        else
-            logger.debug('BOM no found: default to ascii.');
+        case 'UTF-8':
+            return ENCODING_UTF_8;
 
-        return encoding;
-    }
-    finally
-    {
-        fs.closeSync(fd);
+        case 'UTF-16LE':
+            return ENCODING_UTF_16LE;
+
+        case 'UTF-16BE':
+            return ENCODING_UTF_16BE;
+
+        case 'windows-1252':
+            return ENCODING_WIN1252;
+
+        default:
+            return ENCODING_ASCII;
     }
 }
 
