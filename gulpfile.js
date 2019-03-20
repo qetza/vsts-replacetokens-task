@@ -106,6 +106,7 @@ getExternalModules = function() {
     }
 
     fs.unlinkSync(path.join(libPath, 'package.json'));
+    fs.unlinkSync(path.join(libPath, 'package-lock.json'));
 }
 
 updateExtensionManifest = function(options) {

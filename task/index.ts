@@ -27,8 +27,83 @@ interface Options {
     readonly emptyValue: string, 
     readonly escapeType: string,
     readonly escapeChar: string, 
-    readonly charsToEscape: string
+    readonly charsToEscape: string,
+    readonly verbosity: string
 }
+
+interface ILogger {
+    debug(message: string): void,
+    info(message: string): void,
+    warn(message: string): void,
+    error(message: string): void
+}
+
+class NullLogger implements ILogger {
+    public debug(message: string): void {}
+    public info(message: string): void {}
+    public warn(message: string): void {}
+    public error(message: string): void {}
+}
+
+enum LogLevel {
+    Debug,
+    Info,
+    Warn,
+    Error,
+    Off = 255
+}
+
+class Logger implements ILogger {
+    private _level: LogLevel;
+    
+    constructor(level: LogLevel) {
+        this._level = level;
+    }
+
+    public debug(message: string): void {
+        this.log(LogLevel.Debug, message);
+    }
+
+    public info(message: string): void {
+        this.log(LogLevel.Info, message);
+    }
+
+    public warn(message: string): void {
+        this.log(LogLevel.Warn, message);
+    }
+
+    public error(message: string): void {
+        this.log(LogLevel.Error, message);
+    }
+
+    private log(level: LogLevel, message: string): void {
+        // always log debug to system debug
+        if (level === LogLevel.Debug)
+            tl.debug(message);
+        
+        // always set task result on error
+        if (level === LogLevel.Error)
+            tl.setResult(tl.TaskResult.Failed, message);
+
+        if (level < this._level)
+            return;
+
+        switch (level)
+        {
+            case LogLevel.Debug:
+            case LogLevel.Info:
+                console.log(message);
+                break;
+
+            case LogLevel.Warn:
+                tl.warning(message);
+                break;
+        }
+           
+    }
+}
+
+var logger: ILogger = new NullLogger();
 
 var mapEncoding = function (encoding: string): string {
     switch (encoding)
@@ -91,7 +166,7 @@ var getEncoding = function (filePath: string): string {
         else if (bytes[0] === 0xff && bytes[1] === 0xfe)
             encoding = ENCODING_UTF_16LE
         else
-            tl.debug('BOM no found: default to ascii.');
+            logger.debug('BOM no found: default to ascii.');
 
         return encoding;
     }
@@ -105,14 +180,14 @@ var replaceTokensInFile = function (
     filePath: string, 
     regex: RegExp, 
     options: Options): void {
-    console.log('replacing tokens in: ' + filePath);
+    logger.info('replacing tokens in: ' + filePath);
 
     // ensure encoding
     let encoding: string = options.encoding;
     if (options.encoding === ENCODING_AUTO)
         encoding = getEncoding(filePath);
 
-    tl.debug('using encoding: ' + encoding);
+    logger.debug('using encoding: ' + encoding);
 
     // read file and replace tokens
     let content: string = iconv.decode(fs.readFileSync(filePath), encoding);
@@ -130,15 +205,15 @@ var replaceTokensInFile = function (
             switch (options.actionOnMissing)
             {
                 case ACTION_WARN:
-                    tl.warning(message);
+                    logger.warn(message);
                     break;
 
                 case ACTION_FAIL:
-                    tl.setResult(tl.TaskResult.Failed, message);
+                    logger.error(message);
                     break;
 
                 default:
-                    tl.debug(message);
+                    logger.debug(message);
             }
         }
         else if (options.emptyValue && value === options.emptyValue)
@@ -182,11 +257,29 @@ var replaceTokensInFile = function (
                 break;
         }
 
+        logger.debug(name + ': ' + value);
+
         return value;
     });
 
     // write file
     fs.writeFileSync(filePath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
+}
+
+var mapLogLevel = function (level: string): LogLevel {
+    switch (level)
+    {
+        case "normal":
+            return LogLevel.Info;
+        
+        case "detailed":
+            return LogLevel.Debug;
+        
+        case "off":
+            return LogLevel.Off;
+    }
+
+    return LogLevel.Info;
 }
 
 async function run() {
@@ -203,8 +296,11 @@ async function run() {
             emptyValue: tl.getInput('emptyValue', false),
             escapeType: tl.getInput('escapeType', false),
             escapeChar: tl.getInput('escapeChar', false),
-            charsToEscape: tl.getInput('charsToEscape', false)
+            charsToEscape: tl.getInput('charsToEscape', false),
+            verbosity: tl.getInput('verbosity', true)
         };
+
+        logger = new Logger(mapLogLevel(options.verbosity));
 
         let targetFiles: string[] = [];
         tl.getDelimitedInput('targetFiles', '\n', true).forEach((x: string) => {
@@ -217,13 +313,13 @@ async function run() {
 
         // initialize task
         let regex: RegExp = new RegExp(tokenPrefix + '((?:(?!' + tokenSuffix + ').)*)' + tokenSuffix, 'gm');
-        tl.debug('pattern: ' + regex.source);
+        logger.debug('pattern: ' + regex.source);
 
         // process files
         tl.findMatch(root, targetFiles).forEach(filePath => {
             if (!tl.exist(filePath))
             {
-                tl.error('file not found: ' + filePath);
+                logger.error('file not found: ' + filePath);
 
                 return;
             }
@@ -233,7 +329,7 @@ async function run() {
     }
     catch (err)
     {
-        tl.setResult(tl.TaskResult.Failed, err.message);
+        logger.error(err.message);
     }
 }
 
