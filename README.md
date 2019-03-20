@@ -37,6 +37,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 ## Release notes
 **New in 3.2.0**
 - Switch to [jschardet](https://github.com/aadsm/jschardet) for encoding detection when selecting `auto` in _File encoding_.
+- Switch to [azure-pipelines-task-lib](https://github.com/Microsoft/azure-pipelines-task-lib) v2.8.0.
 
 **New in 3.1.0**
 - Add _Verbosity_ parameter to allow detail logs without using `system.debug`.
