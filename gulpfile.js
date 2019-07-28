@@ -11,8 +11,8 @@ var del = require('del');
 var merge = require('merge-stream');
 var cp = require('child_process');
 
-var _buildRoot = path.join(__dirname, '_build');
-var _packagesRoot = path.join(__dirname, '_packages');
+var _buildRoot = path.join(__dirname, '_artifacts', 'binaries');
+var _packagesRoot = path.join(__dirname, '_artifacts', 'packages');
 
 function errorHandler(err) {
     process.exit(1);
