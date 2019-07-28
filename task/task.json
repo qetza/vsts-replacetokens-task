@@ -74,6 +74,34 @@
             "visibleRule": "encoding != ascii && encoding != win1252 && encoding != iso88591"
         },
         {
+            "name": "escapeType",
+            "type": "pickList",
+            "defaultValue": "auto",
+            "label": "Escape values type",
+            "helpMarkDown": "Specify how to escape variable values.",
+            "options": {
+                "auto": "auto",
+                "none": "no escaping",
+                "json": "json",
+                "xml": "xml",
+                "custom": "custom" 
+            }
+        },
+        {
+            "name": "escapeChar",
+            "type": "string",
+            "label": "Escape character",
+            "visibleRule": "escapeType == custom",
+            "helpMarkDown": "The escape character to use when escaping characters in the variable values."
+        },
+        {
+            "name": "charsToEscape",
+            "type": "string",
+            "label": "Characters to escape",
+            "visibleRule": "escapeType == custom",
+            "helpMarkDown": "Characters in variable values to escape before replacing tokens."
+        },
+        {
             "name": "verbosity",
             "type": "pickList",
             "label": "Verbosity",
@@ -134,36 +162,6 @@
             "groupName": "advanced",
             "required": false,
             "helpMarkDown": "The variable value which will be replaced by an empty string."
-        },
-        {
-            "name": "escapeType",
-            "type": "pickList",
-            "defaultValue": "none",
-            "label": "Escape values type",
-            "groupName": "advanced",
-            "helpMarkDown": "Specify how to escape variable values.",
-            "options": {
-                "none": "no escaping",
-                "json": "json",
-                "xml": "xml",
-                "custom": "custom" 
-            }
-        },
-        {
-            "name": "escapeChar",
-            "type": "string",
-            "label": "Escape character",
-            "groupName": "advanced",
-            "visibleRule": "escapeType == custom",
-            "helpMarkDown": "The escape character to use when escaping characters in the variable values."
-        },
-        {
-            "name": "charsToEscape",
-            "type": "string",
-            "label": "Characters to escape",
-            "groupName": "advanced",
-            "visibleRule": "escapeType == custom",
-            "helpMarkDown": "Characters in variable values to escape before replacing tokens."
         }
     ],
     "execution": {

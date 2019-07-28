@@ -2,6 +2,7 @@ import tl = require('azure-pipelines-task-lib/task');
 import fs = require('fs');
 import iconv = require('iconv-lite');
 import jschardet = require('jschardet');
+import path = require('path');
 
 const ENCODING_AUTO: string = 'auto';
 const ENCODING_ASCII: string = 'ascii';
@@ -198,7 +199,7 @@ var replaceTokensInFile = function (
             else
                 value = '';
 
-            let message = 'variable not found: ' + name;
+            let message: string = 'variable not found: ' + name;
             switch (options.actionOnMissing)
             {
                 case ACTION_WARN:
@@ -216,7 +217,25 @@ var replaceTokensInFile = function (
         else if (options.emptyValue && value === options.emptyValue)
             value = '';
 
-        switch (options.escapeType) {
+        let escapeType: string = options.escapeType;
+        if (escapeType === 'auto')
+        {
+            switch (path.extname(filePath)) {
+                case '.json':
+                    escapeType = 'json';
+                    break;
+
+                case '.xml':
+                    escapeType = 'xml';
+                    break;
+
+                default:
+                    escapeType = 'none';
+                    break;
+            }
+        }
+
+        switch (escapeType) {
             case 'json':
                 value = value.replace(JSON_ESCAPE, match => {
                     switch (match) {

@@ -13,6 +13,10 @@ Parameters include:
 - **Target files**: the absolute or relative newline-separated paths to the files to replace tokens. Wildcards can be used (eg: `**\*.config` for all config files in all sub folders).
 - **Files encoding**: the files encoding used for reading and writing. The 'auto' value will determine the encoding based on the Byte Order Mark (BOM) if present; otherwise it will use ascii.
 - **Write unicode BOM**: if checked writes an unicode Byte Order Mark (BOM).
+- **Escape type**: specify how to escape variable values. Value `auto` uses the file extension (`.json` and `.xml`) to determine the escaping and `none` as fallback.
+- **Escape character**: when using `custom` escape type, the escape character to use when escaping characters in the variable values.
+- **Characters to escape**: when using `custom` escape type, characters in variable values to escape before replacing tokens.
+- **Verbosity**: specify the level of log verbosity. (note: error and system debug are always on)
 - **Action**: specify the action to take on a missing variable.
   - _silently continue_: the task will continue without displaying any message.
   - _log warning_: the task will continue but log a warning with the missing variable name.
@@ -21,10 +25,6 @@ Parameters include:
 - **Token prefix**: the prefix of the tokens to search in the target files.
 - **Token suffix**: the suffix of the tokens to search in the target files.
 - **Empty value**: the variable value that will be replaced with an empty string.
-- **Escape type**: specify how to escape variable values.
-- **Escape character**: when using `custom` escape type, the escape character to use when escaping characters in the variable values.
-- **Characters to escape**: when using `custom` escape type, characters in variable values to escape before replacing tokens.
-- **Verbosity**: specify the level of log verbosity. (note: error and system debug are always on)
 
 ## Tips
 If you want to use tokens in XML based configuration files to be replaced during deployment and also have those files usable for local development you can combine the [Replace Tokens task](https://marketplace.visualstudio.com/items?itemName=qetza.replacetokens) with the [XDT tranform task](https://marketplace.visualstudio.com/items?itemName=qetza.xdttransform):
@@ -38,6 +38,8 @@ If you want to use tokens in XML based configuration files to be replaced during
 **New in 3.2.0**
 - Switch to [jschardet](https://github.com/aadsm/jschardet) for encoding detection when selecting `auto` in _File encoding_ ([#99](https://github.com/qetza/vsts-replacetokens-task/issues/99)).
 - Switch to [azure-pipelines-task-lib](https://github.com/Microsoft/azure-pipelines-task-lib) v2.8.0.
+- Add `auto` to _Escape type_ and set it as default value.
+- Move _Escape type_, _Escape character_ and _Characters to escape_ to the main paramters section for easier discoverability.
 
 **New in 3.1.0**
 - Add _Verbosity_ parameter to allow detail logs without using `system.debug`.
