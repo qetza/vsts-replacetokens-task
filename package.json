@@ -28,6 +28,7 @@
     "minimist": "^1.2.0",
     "semver": "^5.6.0",
     "shelljs": "^0.8.1",
+    "tfx-cli": "^0.7.9",
     "typescript": "^2.9.2"
   },
   "dependencies": {
