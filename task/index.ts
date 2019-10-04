@@ -3,6 +3,7 @@ import fs = require('fs');
 import iconv = require('iconv-lite');
 import jschardet = require('jschardet');
 import path = require('path');
+import os = require('os');
 
 const ENCODING_AUTO: string = 'auto';
 const ENCODING_ASCII: string = 'ascii';
@@ -18,6 +19,9 @@ const ACTION_FAIL: string = 'fail';
 
 const XML_ESCAPE: RegExp = /[<>&'"]/g;
 const JSON_ESCAPE: RegExp = /["\\/\b\f\n\r\t]/g;
+const WIN32_DIRECTORY_SEPARATOR: RegExp = /\\/g;
+const POSIX_DIRECTORY_SEPARATOR: RegExp = /\//g;
+const OUTPUT_WILDCARD: RegExp = /\*/g;
 
 interface Options {
     readonly encoding: string, 
@@ -29,6 +33,13 @@ interface Options {
     readonly escapeChar: string, 
     readonly charsToEscape: string,
     readonly verbosity: string
+}
+
+interface Rule {
+    isInputWildcard: boolean,
+    inputPattern: string,
+    isOutputRelative: boolean,
+    outputPattern: string
 }
 
 interface ILogger {
@@ -176,9 +187,13 @@ var getEncoding = function (filePath: string): string {
 
 var replaceTokensInFile = function (
     filePath: string, 
+    outputPath: string,
     regex: RegExp, 
     options: Options): void {
     logger.info('replacing tokens in: ' + filePath);
+
+    if (filePath !== outputPath)
+        logger.info('output in: ' + outputPath);
 
     // ensure encoding
     let encoding: string = options.encoding;
@@ -279,8 +294,20 @@ var replaceTokensInFile = function (
         return value;
     });
 
+    // ensure outputPath directory exists
+    let mkdirSyncRecursive = function (p: string) {
+        if (fs.existsSync(p))
+            return;
+        
+        mkdirSyncRecursive(path.dirname(p));
+
+        fs.mkdirSync(p);
+        logger.debug('created folder: ' + p);
+    };
+    mkdirSyncRecursive(path.dirname(path.resolve(outputPath)));
+
     // write file
-    fs.writeFileSync(filePath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
+    fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
 }
 
 var mapLogLevel = function (level: string): LogLevel {
@@ -297,6 +324,12 @@ var mapLogLevel = function (level: string): LogLevel {
     }
 
     return LogLevel.Info;
+}
+
+var normalize = function (p: string): string {
+    return os.platform() === 'win32'
+        ? p.replace(POSIX_DIRECTORY_SEPARATOR, '\\')
+        : p.replace(WIN32_DIRECTORY_SEPARATOR, '/');
 }
 
 async function run() {
@@ -319,12 +352,30 @@ async function run() {
 
         logger = new Logger(mapLogLevel(options.verbosity));
 
-        let targetFiles: string[] = [];
-        tl.getDelimitedInput('targetFiles', '\n', true).forEach((x: string) => {
-            if (x)
-                x.split(',').forEach((y: string) => {
-                    if (y)
-                        targetFiles.push(y.trim());
+        let rules: Rule[] = [];
+        tl.getDelimitedInput('targetFiles', '\n', true).forEach((l: string) => {
+            if (l)
+                l.split(',').forEach((line: string) => {
+                    if (line)
+                    {
+                        let ruleParts: string[] = line.split('=>');
+                        let rule: Rule = { 
+                            isInputWildcard: false,
+                            inputPattern: normalize(ruleParts[0].trim()),
+                            isOutputRelative: false, 
+                            outputPattern: null
+                        };
+
+                        rule.isInputWildcard = path.basename(rule.inputPattern).indexOf('*') != -1;
+
+                        if (ruleParts.length > 1)
+                        {
+                            rule.outputPattern = normalize(ruleParts[1].trim());
+                            rule.isOutputRelative = !path.isAbsolute(rule.outputPattern)
+                        }
+
+                        rules.push(rule);
+                    }
                 })
         });
 
@@ -333,15 +384,36 @@ async function run() {
         logger.debug('pattern: ' + regex.source);
 
         // process files
-        tl.findMatch(root, targetFiles).forEach(filePath => {
-            if (!tl.exist(filePath))
-            {
-                logger.error('file not found: ' + filePath);
+        rules.forEach(rule => {
+            tl.findMatch(root, rule.inputPattern).forEach(filePath => {
+                if (!tl.exist(filePath))
+                {
+                    logger.error('file not found: ' + filePath);
 
-                return;
-            }
+                    return;
+                }
 
-            replaceTokensInFile(filePath, regex, options);
+                let outputPath: string = filePath;
+                if (rule.outputPattern)
+                {
+                    outputPath = rule.outputPattern;
+
+                    if (rule.isInputWildcard)
+                    {
+                        let inputBasename: string = path.basename(rule.inputPattern);
+                        let inputWildcardIndex = inputBasename.indexOf('*');
+                        let fileBasename: string = path.basename(filePath);
+                        let token: string = fileBasename.substring(inputWildcardIndex, fileBasename.length - (inputBasename.length - inputWildcardIndex -1));
+
+                        outputPath = outputPath.replace(OUTPUT_WILDCARD, token);
+                    }
+
+                    if (rule.isOutputRelative)
+                        outputPath = path.join(path.dirname(filePath), outputPath);
+                }
+
+                replaceTokensInFile(filePath, outputPath, regex, options);
+            });
         });
     }
     catch (err)

@@ -44,7 +44,7 @@
             "label": "Target files",
             "defaultValue": "**/*.config",
             "required": true,
-            "helpMarkDown": "Absolute or relative comma or newline-separated paths to the files to replace tokens. Wildcards can be used.<br/>Eg: `**/*.config` for all config files in all sub folders."
+            "helpMarkDown": "Absolute or relative comma or newline-separated paths to the files to replace tokens (wildcards can be used).<br/>Syntax: {file path}[ => {output path}]<br/>Example: 'web.config' will replace tokens in web.config and update the file.<br/>Example: 'config\\*.tokenized.config => *.config' will replace tokens in config\\{filename}.tokenized.config and save the result in config\\{filename}.config."
         },
         {
             "name": "encoding",
