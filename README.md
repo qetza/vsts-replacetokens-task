@@ -35,6 +35,9 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 3.2.2**
+- Fix matching issue with directory
+
 **New in 3.2.1**
 - Fix log issue with escaped secret values
 

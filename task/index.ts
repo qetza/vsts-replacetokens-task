@@ -334,6 +334,11 @@ async function run() {
 
         // process files
         tl.findMatch(root, targetFiles).forEach(filePath => {
+            if (tl.stats(filePath).isDirectory())
+            {
+                return;
+            }
+
             if (!tl.exist(filePath))
             {
                 logger.error('file not found: ' + filePath);
