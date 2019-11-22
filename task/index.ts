@@ -386,6 +386,11 @@ async function run() {
         // process files
         rules.forEach(rule => {
             tl.findMatch(root, rule.inputPattern).forEach(filePath => {
+                if (tl.stats(filePath).isDirectory())
+                {
+                    return;
+                }
+
                 if (!tl.exist(filePath))
                 {
                     logger.error('file not found: ' + filePath);

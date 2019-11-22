@@ -50,6 +50,9 @@ If you want to use tokens in XML based configuration files to be replaced during
 **New in 3.3.0**
 - Add support for custom output file and wildcard support ([#114](https://github.com/qetza/vsts-replacetokens-task/issues/114)).
 
+**New in 3.2.2**
+- Fix matching issue with directory ([#122](https://github.com/qetza/vsts-replacetokens-task/issues/122)).
+
 **New in 3.2.1**
 - Fix log issue with escaped secret values.
 
