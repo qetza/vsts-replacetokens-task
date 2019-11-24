@@ -20,12 +20,12 @@ If your are using a YAML file, add a task with the following syntax:
 
 Parameters include (in parenthesis the yaml name):
 - **Root directory** (rootDirectory): the base directory for searching files. If not specified the default working directory will be used.
-- **Target files** (targetFiles): the absolute or relative newline-separated paths to the files to replace tokens. Wildcards can be used (eg: `**\*.config` for all config files in all sub folders).
+- **Target files** (targetFiles): the absolute or relative newline-separated paths to the files to replace tokens. Wildcards can be used (eg: `**\*.config` for all .config files in all sub folders).
 > **Syntax**: {file path}[ => {output path}]  
 >
 > - `web.config` will replace tokens in _web.config_ and update the file.
 > - `web.tokenized.config => web.config` will replace tokens in _web.tokenized.config_ and save the result in _web.config_.
-> - `config\web.tokenized.config => c:\\config\web.config` will replace tokens in _config\web.tokenized.config_ and save the result in _c:\\config\web.config_.
+> - `config\web.tokenized.config => c:\config\web.config` will replace tokens in _config\web.tokenized.config_ and save the result in _c:\\config\web.config_.
 >
 > **Wildcard support**
 > - `*.tokenized.config => *.config` will replace tokens in all _{filename}.tokenized.config_ target files and save the result in _{filename}.config_.
