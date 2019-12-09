@@ -37,7 +37,7 @@ interface Options {
 
 interface Rule {
     isInputWildcard: boolean,
-    inputPattern: string,
+    inputPatterns: string[],
     isOutputRelative: boolean,
     outputPattern: string
 }
@@ -193,14 +193,14 @@ var replaceTokensInFile = function (
     logger.info('replacing tokens in: ' + filePath);
 
     if (filePath !== outputPath)
-        logger.info('output in: ' + outputPath);
+        logger.info('  output in: ' + outputPath);
 
     // ensure encoding
     let encoding: string = options.encoding;
     if (options.encoding === ENCODING_AUTO)
         encoding = getEncoding(filePath);
 
-    logger.debug('using encoding: ' + encoding);
+    logger.debug('  using encoding: ' + encoding);
 
     // read file and replace tokens
     let content: string = iconv.decode(fs.readFileSync(filePath), encoding);
@@ -214,7 +214,7 @@ var replaceTokensInFile = function (
             else
                 value = '';
 
-            let message: string = 'variable not found: ' + name;
+            let message: string = '  variable not found: ' + name;
             switch (options.actionOnMissing)
             {
                 case ACTION_WARN:
@@ -251,7 +251,7 @@ var replaceTokensInFile = function (
         }
 
         // log value before escaping to show raw value and avoid secret leaks (escaped secrets are not replaced by ***)
-        logger.debug(name + ': ' + value);
+        logger.debug('  ' + name + ': ' + value);
 
         switch (escapeType) {
             case 'json':
@@ -302,7 +302,7 @@ var replaceTokensInFile = function (
         mkdirSyncRecursive(path.dirname(p));
 
         fs.mkdirSync(p);
-        logger.debug('created folder: ' + p);
+        logger.debug('  created folder: ' + p);
     };
     mkdirSyncRecursive(path.dirname(path.resolve(outputPath)));
 
@@ -361,12 +361,12 @@ async function run() {
                         let ruleParts: string[] = line.split('=>');
                         let rule: Rule = { 
                             isInputWildcard: false,
-                            inputPattern: normalize(ruleParts[0].trim()),
+                            inputPatterns: normalize(ruleParts[0].trim()).split(';'),
                             isOutputRelative: false, 
                             outputPattern: null
                         };
 
-                        rule.isInputWildcard = path.basename(rule.inputPattern).indexOf('*') != -1;
+                        rule.isInputWildcard = path.basename(rule.inputPatterns[0]).indexOf('*') != -1;
 
                         if (ruleParts.length > 1)
                         {
@@ -385,7 +385,7 @@ async function run() {
 
         // process files
         rules.forEach(rule => {
-            tl.findMatch(root, rule.inputPattern).forEach(filePath => {
+            tl.findMatch(root, rule.inputPatterns).forEach(filePath => {
                 if (tl.stats(filePath).isDirectory())
                 {
                     return;
@@ -405,7 +405,7 @@ async function run() {
 
                     if (rule.isInputWildcard)
                     {
-                        let inputBasename: string = path.basename(rule.inputPattern);
+                        let inputBasename: string = path.basename(rule.inputPatterns[0]);
                         let inputWildcardIndex = inputBasename.indexOf('*');
                         let fileBasename: string = path.basename(filePath);
                         let token: string = fileBasename.substring(inputWildcardIndex, fileBasename.length - (inputBasename.length - inputWildcardIndex -1));

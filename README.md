@@ -31,8 +31,13 @@ Parameters include (in parenthesis the yaml name):
 > - `*.tokenized.config => *.config` will replace tokens in all _{filename}.tokenized.config_ target files and save the result in _{filename}.config_.
 > - `**\*.tokenized.config => c:\tmp\*.config` will replace tokens in all _{filename}.tokenized.config_ target files and save the result in _c:\tmp\\{filename}.config_.
 >
-> Only the wildcard _*_ in the target file name will be used for replacement in the output.  
-> Relative paths in the output pattern are relative to the target file path.
+> Only the wildcard _*_ in the target file name will be used for replacement in the output.\
+> Relative paths in the output pattern are relative to the target file path.\
+>
+> **Negative pattern**\
+> If you want to use negative pattern in target file, use a semi-colon `;` to separate the including pattern and the negative patterns. When using output syntax, only the wildcard in the first pattern will be used for generating the output path.
+> - `**\*.tokenized.config;!**\dev\*.config => c:\tmp\*.config` will replace tokens in all _{filename}.tokenized.config_ target files except those under a _dev_ directory and save the result in _c:\tmp\\{filename}.config_.
+
 - **Files encoding** (encoding): the files encoding used for reading and writing. The 'auto' value will determine the encoding based on the Byte Order Mark (BOM) if present; otherwise it will use ascii.
 - **Write unicode BOM** (writeBOM): if checked writes an unicode Byte Order Mark (BOM).
 - **Escape type** (escapeType): specify how to escape variable values. Value `auto` uses the file extension (`.json` and `.xml`) to determine the escaping and `none` as fallback.
@@ -57,6 +62,10 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 3.3.1**
+- **Breaking change**: If you were using negative pattern you need to use the semi colon `;` as a separator instead of new-line in _Target files_.
+- Fix negative pattern support  ([#127](https://github.com/qetza/vsts-replacetokens-task/issues/122)).
+
 **New in 3.3.0**
 - Add support for custom output file and wildcard support ([#114](https://github.com/qetza/vsts-replacetokens-task/issues/114)).
 
