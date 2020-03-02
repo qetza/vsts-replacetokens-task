@@ -62,9 +62,12 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 3.4.0**
+- Add summary in logs with number of tokens found and replaced ([#126](https://github.com/qetza/vsts-replacetokens-task/issues/126)).
+
 **New in 3.3.1**
 - **Breaking change**: If you were using negative pattern you need to use the semi colon `;` as a separator instead of new-line in _Target files_.
-- Fix negative pattern support  ([#127](https://github.com/qetza/vsts-replacetokens-task/issues/122)).
+- Fix negative pattern support ([#127](https://github.com/qetza/vsts-replacetokens-task/issues/127)).
 
 **New in 3.3.0**
 - Add support for custom output file and wildcard support ([#114](https://github.com/qetza/vsts-replacetokens-task/issues/114)).

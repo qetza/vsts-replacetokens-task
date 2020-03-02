@@ -114,7 +114,14 @@ class Logger implements ILogger {
     }
 }
 
+class Counter {
+    public Tokens: number = 0;
+    public Replaced: number = 0;
+    public Files: number = 0;
+}
+
 var logger: ILogger = new NullLogger();
+var globalCounters: Counter = new Counter(); 
 
 var mapEncoding = function (encoding: string): string {
     switch (encoding)
@@ -203,8 +210,12 @@ var replaceTokensInFile = function (
     logger.debug('  using encoding: ' + encoding);
 
     // read file and replace tokens
+    let localCounter: Counter = new Counter();
+
     let content: string = iconv.decode(fs.readFileSync(filePath), encoding);
     content = content.replace(regex, (match, name) => {
+        ++localCounter.Tokens;
+
         let value: string = tl.getVariable(name);
 
         if (!value)
@@ -229,8 +240,13 @@ var replaceTokensInFile = function (
                     logger.debug(message);
             }
         }
-        else if (options.emptyValue && value === options.emptyValue)
-            value = '';
+        else
+        {
+            ++localCounter.Replaced;
+
+            if (options.emptyValue && value === options.emptyValue)
+                value = '';
+        }
 
         let escapeType: string = options.escapeType;
         if (escapeType === 'auto')
@@ -306,8 +322,12 @@ var replaceTokensInFile = function (
     };
     mkdirSyncRecursive(path.dirname(path.resolve(outputPath)));
 
-    // write file
+    // write file & log
     fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
+    logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens);
+
+    globalCounters.Tokens += localCounter.Tokens;
+    globalCounters.Replaced += localCounter.Replaced;
 }
 
 var mapLogLevel = function (level: string): LogLevel {
@@ -418,8 +438,11 @@ async function run() {
                 }
 
                 replaceTokensInFile(filePath, outputPath, regex, options);
+                ++globalCounters.Files;
             });
         });
+
+        logger.info('replaced ' + globalCounters.Replaced + ' tokens out of ' + globalCounters.Tokens + ' in ' + globalCounters.Files + ' file(s).');
     }
     catch (err)
     {

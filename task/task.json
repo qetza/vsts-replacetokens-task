@@ -12,8 +12,8 @@
     "author": "Guillaume Rouchon",
     "version": {
         "Major": 3,
-        "Minor": 3,
-        "Patch": 1
+        "Minor": 4,
+        "Patch": 0
     },
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
     "minimumAgentVersion": "2.105.0",
