@@ -162,6 +162,25 @@
             "groupName": "advanced",
             "required": false,
             "helpMarkDown": "The variable value which will be replaced by an empty string."
+        },
+        {
+            "name": "variableFiles",
+            "type": "multiLine",
+            "label": "Variable files (JSON)",
+            "defaultValue": "",
+            "groupName": "advanced",
+            "required": false,
+            "helpMarkDown": "Absolute or relative comma or newline-separated paths to the files containing additional variables (wildcards can be used)."
+        },
+        {
+            "name": "variableSeparator",
+            "type": "string",
+            "label": "Variable separator",
+            "defaultValue": ".",
+            "groupName": "advanced",
+            "required": false,
+            "visibleRule": "variableFiles != \"\"",
+            "helpMarkDown": "The separtor to use in variable names for nested objects in variable files.<br/>Example: {'My':{'Value':'Hello World!'}} will create a variable 'My.Value' with the value 'Hello World!'"
         }
     ],
     "execution": {

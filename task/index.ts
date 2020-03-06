@@ -4,6 +4,7 @@ import iconv = require('iconv-lite');
 import jschardet = require('jschardet');
 import path = require('path');
 import os = require('os');
+import { isObject } from 'util';
 
 const ENCODING_AUTO: string = 'auto';
 const ENCODING_ASCII: string = 'ascii';
@@ -122,6 +123,7 @@ class Counter {
 
 var logger: ILogger = new NullLogger();
 var globalCounters: Counter = new Counter(); 
+var fileVariables: {[name: string]: string} = {};
 
 var mapEncoding = function (encoding: string): string {
     switch (encoding)
@@ -192,6 +194,42 @@ var getEncoding = function (filePath: string): string {
     }
 }
 
+var loadVariablesFromJson = function(
+    value: any, 
+    name: string,
+    separator: string,
+    variables: { [name: string] : string; }): number
+{
+    let count: number = 0;
+    let type: string = typeof(value);
+
+    let prefix: string = name;
+    if (name.length != 0)
+        prefix += separator;
+
+    if (value === null || type == "boolean" || type == "number" || type == "string")
+    {
+        variables[name] = (value === null ? "" : value) + "";
+
+        ++count;
+        logger.debug('  loaded variable: ' + name);
+    }
+    else if (Array.isArray(value))
+    {
+        value.forEach((v: any, i: number) => {
+            count += loadVariablesFromJson(v, prefix + i, separator, variables);
+        });
+    }
+    else if (type == "object")
+    {
+        Object.keys(value).forEach(key => {
+            count += loadVariablesFromJson(value[key], prefix + key, separator, variables);
+        });
+    }
+
+    return count;
+}
+
 var replaceTokensInFile = function (
     filePath: string, 
     outputPath: string,
@@ -217,6 +255,8 @@ var replaceTokensInFile = function (
         ++localCounter.Tokens;
 
         let value: string = tl.getVariable(name);
+        if (name in fileVariables)
+            value = fileVariables[name];
 
         if (!value)
         {
@@ -399,6 +439,36 @@ async function run() {
                 })
         });
 
+        let variableSeparator: string = tl.getInput('variableSeparator', false);
+        tl.getDelimitedInput('variableFiles', '\n', false).forEach((l: string) => {
+            if (l)
+                l.split(',').forEach((path: string) => {
+                    if (path)
+                    {
+                        tl.findMatch(root, normalize(path)).forEach(filePath => {
+                            if (tl.stats(filePath).isDirectory())
+                                return;
+            
+                            if (!tl.exist(filePath))
+                            {
+                                logger.error('file not found: ' + filePath);
+            
+                                return;
+                            }
+
+                            logger.info('loading variables from: ' + filePath);
+
+                            let encoding: string = getEncoding(filePath);
+                            let variables: any = JSON.parse(iconv.decode(fs.readFileSync(filePath), encoding));
+
+                            let count: number = loadVariablesFromJson(variables, '', variableSeparator, fileVariables);
+
+                            logger.info('  ' + count + ' variable(s) loaded.');
+                        });
+                    }
+                });
+        });
+
         // initialize task
         let regex: RegExp = new RegExp(tokenPrefix + '((?:(?!' + tokenSuffix + ').)*)' + tokenSuffix, 'gm');
         logger.debug('pattern: ' + regex.source);
@@ -407,9 +477,7 @@ async function run() {
         rules.forEach(rule => {
             tl.findMatch(root, rule.inputPatterns).forEach(filePath => {
                 if (tl.stats(filePath).isDirectory())
-                {
                     return;
-                }
 
                 if (!tl.exist(filePath))
                 {

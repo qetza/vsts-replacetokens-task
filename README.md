@@ -20,7 +20,7 @@ If your are using a YAML file, add a task with the following syntax:
 
 Parameters include (in parenthesis the yaml name):
 - **Root directory** (rootDirectory): the base directory for searching files. If not specified the default working directory will be used.
-- **Target files** (targetFiles): the absolute or relative newline-separated paths to the files to replace tokens. Wildcards can be used (eg: `**\*.config` for all .config files in all sub folders).
+- **Target files** (targetFiles): the absolute or relative newline-separated paths to the files to replace tokens. Wildcards can be used (eg: `**\*.config` for all _.config_ files in all sub folders).
 > **Syntax**: {file path}[ => {output path}]  
 >
 > - `web.config` will replace tokens in _web.config_ and update the file.
@@ -52,6 +52,8 @@ Parameters include (in parenthesis the yaml name):
 - **Token prefix** (tokenPrefix): the prefix of the tokens to search in the target files.
 - **Token suffix** (tokenSuffix): the suffix of the tokens to search in the target files.
 - **Empty value** (emptyValue): the variable value that will be replaced with an empty string.
+- **Variable files (JSON)** (variableFiles): the absolute or relative comma or newline-separated paths to the files containing additional variables. Wildcards can be used (eg: `vars\**\*.json` for all _.json_ files in all sub folders of _vars_). Variables declared in files overrides variables defined in the pipeline.
+- **Variable separator** (variableSeparator): the separtor to use in variable names for nested objects and arrays in variable files. Example: `{ 'My': { 'Value': ['Hello World!'] } }` will create a variable _My.Value.0_ with the value _Hello World!_.
 
 ## Tips
 If you want to use tokens in XML based configuration files to be replaced during deployment and also have those files usable for local development you can combine the [Replace Tokens task](https://marketplace.visualstudio.com/items?itemName=qetza.replacetokens) with the [XDT tranform task](https://marketplace.visualstudio.com/items?itemName=qetza.xdttransform):
@@ -64,6 +66,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 ## Release notes
 **New in 3.4.0**
 - Add summary in logs with number of tokens found and replaced ([#126](https://github.com/qetza/vsts-replacetokens-task/issues/126)).
+- Add support for variables in external JSON files ([#113](https://github.com/qetza/vsts-replacetokens-task/issues/113)).
 
 **New in 3.3.1**
 - **Breaking change**: If you were using negative pattern you need to use the semi colon `;` as a separator instead of new-line in _Target files_.
