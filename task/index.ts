@@ -6,7 +6,6 @@ import path = require('path');
 import os = require('os');
 import crypto = require('crypto');
 import trackEvent, { TelemetryEvent } from './telemetry';
-import { start } from 'repl';
 
 const ENCODING_AUTO: string = 'auto';
 const ENCODING_ASCII: string = 'ascii';
@@ -398,6 +397,11 @@ async function run() {
     let serverType = tl.getVariable('System.ServerType').toLowerCase();
     let telemetryEnabled = tl.getBoolInput('enableTelemetry', true) && tl.getVariable('REPLACETOKENS_DISABLE_TELEMETRY') !== 'true';
 
+    let proxyUrl: string = undefined;
+    let config = tl.getHttpProxyConfiguration();
+    if (config)
+        proxyUrl = config.proxyUrl;
+
     let telemetryEvent = {
         account: crypto.createHash('sha256').update(tl.getVariable('system.collectionid')).digest('hex'),
         pipeline: crypto.createHash('sha256').update(tl.getVariable('system.teamprojectid') + tl.getVariable('system.definitionid')).digest('hex'),
@@ -579,7 +583,7 @@ async function run() {
     {
         if (telemetryEnabled)
         {
-            var trackedData = trackEvent(telemetryEvent);
+            var trackedData = trackEvent(telemetryEvent, proxyUrl);
             tl.debug('sent usage telemetry: ' + JSON.stringify(trackedData));
         }
     }

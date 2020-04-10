@@ -1,15 +1,21 @@
 import crypto = require('crypto');
+import url = require('url');
+import http = require('http');
+import https = require('https');
 
 const instrumentationKey = '99bddd1b-7049-4f4a-b45c-5c6ffbb48a2e';
 const preview = false;
 const version = '3.5.0';
 const sdkVersion = 'replacetokens:1.0.0';
 const operationName = 'replacetokens';
-const eventName = 'token.replaced'
+const eventName = 'token.replaced';
+const telemetryUrl = 'https://dc.services.visualstudio.com/v2/track';
+const timeout = 3000;
 
-export default function trackEvent(event: TelemetryEvent): string {
+export default function trackEvent(event: TelemetryEvent, proxyUrl?: string): string {
     try
     {
+        // create event payload
         let operationId: string = crypto.randomBytes(16).toString('hex');
         let body = {
             name: 'Microsoft.ApplicationInsights.Dev.' + instrumentationKey + '.Event',
@@ -61,13 +67,64 @@ export default function trackEvent(event: TelemetryEvent): string {
             }
         };
 
+        // send event
+        let telemetryUrlParsed = url.parse(telemetryUrl);
+        let options = {
+            method: 'POST',
+            host: telemetryUrlParsed.hostname,
+            port: telemetryUrlParsed.port,
+            path: telemetryUrlParsed.pathname,
+            withCredentials: false,
+            timeout: timeout,
+            headers: <{ [key: string]: string}>{
+                'Content-Type': 'application/json'
+            }
+        };
+
+        proxyUrl = proxyUrl || process.env['https_proxy'] || undefined;
+        if (proxyUrl)
+        {
+            if (proxyUrl.indexOf('//') === 0)
+                proxyUrl = 'http:' + proxyUrl
+
+            let proxyUrlParsed = url.parse(proxyUrl);
+            if (proxyUrlParsed.protocol === 'https:')
+            {
+                proxyUrl = undefined;
+            }
+            else
+            {
+                options = {...options,
+                    host: proxyUrlParsed.hostname,
+                    port: proxyUrlParsed.port || '80',
+                    path: telemetryUrl,
+                    headers: {...options.headers,
+                        Host: telemetryUrlParsed.hostname
+                    }
+                }
+            }
+        }
+
+        let request = proxyUrl 
+            ? http.request(options)
+            : https.request(options);
+
+        request.setTimeout(timeout, () => {
+            request.abort()
+        });
+        request.on('error', (e) => {});
+
+        request.write(JSON.stringify(body));
+        request.end();
+
+        // return payload
         body.name = 'Microsoft.ApplicationInsights.Dev.*****.Event'
         body.iKey = '*****';
+
         return JSON.stringify(body);
     }
     catch
     {
-        console.debug('error sending telemetry data.');
     }
 }
 
