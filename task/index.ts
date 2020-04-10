@@ -4,6 +4,9 @@ import iconv = require('iconv-lite');
 import jschardet = require('jschardet');
 import path = require('path');
 import os = require('os');
+import crypto = require('crypto');
+import trackEvent, { TelemetryEvent } from './telemetry';
+import { start } from 'repl';
 
 const ENCODING_AUTO: string = 'auto';
 const ENCODING_ASCII: string = 'ascii';
@@ -391,11 +394,22 @@ var normalize = function (p: string): string {
 }
 
 async function run() {
+    let startTime: Date = new Date();
+    let serverType = tl.getVariable('System.ServerType').toLowerCase();
+    let telemetryEnabled = tl.getBoolInput('enableTelemetry', true) && tl.getVariable('REPLACETOKENS_DISABLE_TELEMETRY') !== 'true';
+
+    let telemetryEvent = {
+        account: crypto.createHash('sha256').update(tl.getVariable('system.collectionid')).digest('hex'),
+        pipeline: crypto.createHash('sha256').update(tl.getVariable('system.teamprojectid') + tl.getVariable('system.definitionid')).digest('hex'),
+        pipelineType: tl.getVariable('release.releaseid') ? 'release' : 'build',
+        serverType: !serverType || serverType !== 'hosted' ? 'server' : 'services',
+    } as TelemetryEvent;
+
     try {
         // load inputs
         let root: string = tl.getPathInput('rootDirectory', false, true);
-        let tokenPrefix: string = tl.getInput('tokenPrefix', true).replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        let tokenSuffix: string = tl.getInput('tokenSuffix', true).replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        let tokenPrefix: string = tl.getInput('tokenPrefix', true);
+        let tokenSuffix: string = tl.getInput('tokenSuffix', true);
         let options: Options = {
             encoding: mapEncoding(tl.getInput('encoding', true)),
             keepToken: tl.getBoolInput('keepToken', true),
@@ -411,6 +425,10 @@ async function run() {
         logger = new Logger(mapLogLevel(options.verbosity));
 
         let rules: Rule[] = [];
+        let ruleUsingInputWildcardCount: number = 0;
+        let ruleUsingNegativeInputPattern: number = 0;
+        let ruleUsingOutputPatternCount: number = 0;
+
         tl.getDelimitedInput('targetFiles', '\n', true).forEach((l: string) => {
             if (l)
                 l.split(',').forEach((line: string) => {
@@ -433,11 +451,22 @@ async function run() {
                         }
 
                         rules.push(rule);
+
+                        if (ruleParts[0].indexOf('!') != -1)
+                            ++ruleUsingNegativeInputPattern;
+
+                        if (rule.isInputWildcard)
+                            ++ruleUsingInputWildcardCount;
+                        
+                        if (rule.outputPattern)
+                            ++ruleUsingOutputPatternCount;
                     }
                 })
         });
 
         let variableSeparator: string = tl.getInput('variableSeparator', false);
+        let variableFilesCount: number = 0;
+
         tl.getDelimitedInput('variableFiles', '\n', false).forEach((l: string) => {
             if (l)
                 l.split(',').forEach((path: string) => {
@@ -462,14 +491,38 @@ async function run() {
                             let count: number = loadVariablesFromJson(variables, '', variableSeparator, fileVariables);
 
                             logger.info('  ' + count + ' variable(s) loaded.');
+                            ++variableFilesCount;
                         });
                     }
                 });
         });
 
         // initialize task
-        let regex: RegExp = new RegExp(tokenPrefix + '((?:(?!' + tokenSuffix + ').)*)' + tokenSuffix, 'gm');
+        let escapedTokenPrefix: string = tokenPrefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        let escapedTokenSuffix: string = tokenSuffix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        let regex: RegExp = new RegExp(escapedTokenPrefix + '((?:(?!' + escapedTokenSuffix + ').)*)' + escapedTokenSuffix, 'gm');
         logger.debug('pattern: ' + regex.source);
+
+        // set telemetry data
+        telemetryEvent.actionOnMissing = options.actionOnMissing;
+        telemetryEvent.charsToEscape = options.charsToEscape;
+        telemetryEvent.emptyValue = options.emptyValue;
+        telemetryEvent.encoding = options.encoding;
+        telemetryEvent.escapeChar = options.escapeChar;
+        telemetryEvent.escapeType = options.escapeType;
+        telemetryEvent.keepToken = options.keepToken;
+        telemetryEvent.pattern = regex.source;
+        telemetryEvent.result = 'succeeded';
+        telemetryEvent.rules = rules.length;
+        telemetryEvent.rulesWithInputWildcard = ruleUsingInputWildcardCount;
+        telemetryEvent.rulesWithNegativePattern = ruleUsingNegativeInputPattern;
+        telemetryEvent.rulesWithOutputPattern = ruleUsingOutputPatternCount;
+        telemetryEvent.tokenPrefix = tokenPrefix;
+        telemetryEvent.tokenSuffix = tokenSuffix;
+        telemetryEvent.variableFiles = variableFilesCount;
+        telemetryEvent.variableSeparator = variableSeparator;
+        telemetryEvent.verbosity = options.verbosity;
+        telemetryEvent.writeBOM = options.writeBOM;
 
         // process files
         rules.forEach(rule => {
@@ -508,11 +561,27 @@ async function run() {
             });
         });
 
-        logger.info('replaced ' + globalCounters.Replaced + ' tokens out of ' + globalCounters.Tokens + ' in ' + globalCounters.Files + ' file(s).');
+        let duration = (+new Date() - (+startTime)) / 1000;
+        logger.info('replaced ' + globalCounters.Replaced + ' tokens out of ' + globalCounters.Tokens + ' in ' + globalCounters.Files + ' file(s) in ' + duration + ' seconds.');
+
+        telemetryEvent.duration = duration;
+        telemetryEvent.tokenReplaced = globalCounters.Replaced;
+        telemetryEvent.tokenFound = globalCounters.Tokens;
+        telemetryEvent.fileProcessed = globalCounters.Files;
     }
     catch (err)
     {
+        telemetryEvent.result = 'failed';
+
         logger.error(err.message);
+    }
+    finally
+    {
+        if (telemetryEnabled)
+        {
+            var trackedData = trackEvent(telemetryEvent);
+            tl.debug('sent usage telemetry: ' + JSON.stringify(trackedData));
+        }
     }
 }
 

@@ -4,7 +4,8 @@ var mopts = {
     string: [
         'version',
         'stage',
-        'taskId'
+        'taskId',
+        'iKey'
     ],
     boolean: [
         'public'
@@ -79,6 +80,39 @@ target.build = function() {
 
     shell.cp('-Rf', path.join(__dirname, 'images', '*.png'), imagesPath);
     console.log('  images -> ' + imagesPath);
+
+    // versioning
+    console.log('build: versioning');
+    if (options.version) {
+        if (options.version === 'auto') {
+            var ref = new Date(2000, 1, 1);
+            var now = new Date();
+            var major = 4
+            var minor = Math.floor((now - ref) / 86400000);
+            var patch = Math.floor(Math.floor(now.getSeconds() + (60 * (now.getMinutes() + (60 * now.getHours())))) * 0.5)
+            options.version = major + '.' + minor + '.' + patch
+        }
+        
+        if (!semver.valid(options.version)) {
+            console.error('build', 'Invalid semver version: ' + options.version);
+            process.exit(1);
+        }
+    }
+    
+    switch (options.stage) {
+        case 'dev':
+            options.taskId = '0664FF86-F509-4392-A33C-B2D9239B9AE5';
+            options.iKey = '6c5a849a-a333-4eee-9fd0-fa4597251c5c';
+            options.public = false;
+            break;
+    }
+
+    updateExtensionManifest(options);
+
+    var taskVersion = updateTaskManifest(options);
+    updateTelemetryScript(options.iKey, taskVersion);
+
+    console.log('  version -> ' + taskVersion);
 }
 
 getExternalModules = function(dir) {
@@ -100,32 +134,6 @@ getExternalModules = function(dir) {
 target.package = function() {
     console.log('package: packaging task');
 
-    if (options.version) {
-        if (options.version === 'auto') {
-            var ref = new Date(2000, 1, 1);
-            var now = new Date();
-            var major = 4
-            var minor = Math.floor((now - ref) / 86400000);
-            var patch = Math.floor(Math.floor(now.getSeconds() + (60 * (now.getMinutes() + (60 * now.getHours())))) * 0.5)
-            options.version = major + '.' + minor + '.' + patch
-        }
-        
-        if (!semver.valid(options.version)) {
-            console.error('package', 'Invalid semver version: ' + options.version);
-            process.exit(1);
-        }
-    }
-    
-    switch (options.stage) {
-        case 'dev':
-            options.taskId = '0664FF86-F509-4392-A33C-B2D9239B9AE5';
-            options.public = false;
-            break;
-    }
-
-    updateExtensionManifest(options);
-    updateTaskManifest(options);
-    
     shell.exec('tfx extension create --root "' + binariesPath + '" --output-path "' + packagesPath +'"')
 }
 
@@ -174,4 +182,16 @@ updateTaskManifest = function(options) {
     }
     
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 4));
+
+    return manifest.version.Major + '.' + manifest.version.Minor + '.' + manifest.version.Patch
+}
+
+updateTelemetryScript = function(instrumentationKey, taskVersion) {
+    var scriptPath = path.join(binariesPath, 'task', 'telemetry.js');
+    var script = fs.readFileSync(scriptPath, { encoding: 'utf8' });
+
+    script = script.replace(/const\s+instrumentationKey\s*=\s*'[^']*'\s*;/, "const instrumentationKey = '" + instrumentationKey + "';")
+    script = script.replace(/const\s+version\s*=\s*'[^']*'\s*;/, "const version = '" + taskVersion + "';");
+
+    fs.writeFileSync(scriptPath, script);
 }

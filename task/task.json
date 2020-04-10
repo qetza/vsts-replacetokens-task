@@ -12,8 +12,8 @@
     "author": "Guillaume Rouchon",
     "version": {
         "Major": 3,
-        "Minor": 4,
-        "Patch": 1
+        "Minor": 5,
+        "Patch": 0
     },
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
     "minimumAgentVersion": "2.105.0",
@@ -181,6 +181,15 @@
             "required": false,
             "visibleRule": "variableFiles != \"\"",
             "helpMarkDown": "The separtor to use in variable names for nested objects in variable files.<br/>Example: {'My':{'Value':'Hello World!'}} will create a variable 'My.Value' with the value 'Hello World!'"
+        },
+        {
+            "name": "enableTelemetry",
+            "type": "boolean",
+            "label": "Send anonymous usage telemetry",
+            "defaultValue": "true",
+            "groupName": "advanced",
+            "required": true,
+            "helpMarkDown": "If checked anonymous usage data will be sent to the task author for task usage analysis."
         }
     ],
     "execution": {
