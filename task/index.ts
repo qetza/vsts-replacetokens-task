@@ -4,7 +4,6 @@ import iconv = require('iconv-lite');
 import jschardet = require('jschardet');
 import path = require('path');
 import os = require('os');
-import { isObject } from 'util';
 
 const ENCODING_AUTO: string = 'auto';
 const ENCODING_ASCII: string = 'ascii';
@@ -19,7 +18,7 @@ const ACTION_WARN: string = 'warn';
 const ACTION_FAIL: string = 'fail';
 
 const XML_ESCAPE: RegExp = /[<>&'"]/g;
-const JSON_ESCAPE: RegExp = /["\\/\b\f\n\r\t]/g;
+const JSON_ESCAPE: RegExp = /["\\\b\f\n\r\t]/g;
 const WIN32_DIRECTORY_SEPARATOR: RegExp = /\\/g;
 const POSIX_DIRECTORY_SEPARATOR: RegExp = /\//g;
 const OUTPUT_WILDCARD: RegExp = /\*/g;
@@ -315,7 +314,6 @@ var replaceTokensInFile = function (
                     switch (match) {
                         case '"':
                         case '\\':
-                        case '/':
                             return '\\' + match;
                         
                         case '\b': return "\\b";
