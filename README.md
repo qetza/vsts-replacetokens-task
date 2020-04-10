@@ -69,7 +69,8 @@ If you want to use tokens in XML based configuration files to be replaced during
 
 ## Release notes
 **New in 3.5.0**
-- - Add anonymous usage telemetry.
+- Add anonymous usage telemetry.
+- Ignore spaces between token prefix/suffix and variable name ([#143](https://github.com/qetza/vsts-replacetokens-task/issues/143)).
 
 **New in 3.4.1**
 - Fix JSON escaping of slash `/` ([#138](https://github.com/qetza/vsts-replacetokens-task/issues/138))
