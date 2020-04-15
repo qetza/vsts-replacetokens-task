@@ -394,7 +394,7 @@ var normalize = function (p: string): string {
 
 async function run() {
     let startTime: Date = new Date();
-    let serverType = tl.getVariable('System.ServerType').toLowerCase();
+    let serverType = tl.getVariable('System.ServerType');
     let telemetryEnabled = tl.getBoolInput('enableTelemetry', true) && tl.getVariable('REPLACETOKENS_DISABLE_TELEMETRY') !== 'true';
 
     let proxyUrl: string = undefined;
@@ -406,7 +406,7 @@ async function run() {
         account: crypto.createHash('sha256').update(tl.getVariable('system.collectionid')).digest('hex'),
         pipeline: crypto.createHash('sha256').update(tl.getVariable('system.teamprojectid') + tl.getVariable('system.definitionid')).digest('hex'),
         pipelineType: tl.getVariable('release.releaseid') ? 'release' : 'build',
-        serverType: !serverType || serverType !== 'hosted' ? 'server' : 'services',
+        serverType: !serverType || serverType.toLowerCase() !== 'hosted' ? 'server' : 'services',
     } as TelemetryEvent;
 
     try {

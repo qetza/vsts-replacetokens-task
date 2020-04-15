@@ -190,8 +190,11 @@ updateTelemetryScript = function(instrumentationKey, taskVersion) {
     var scriptPath = path.join(binariesPath, 'task', 'telemetry.js');
     var script = fs.readFileSync(scriptPath, { encoding: 'utf8' });
 
+    if (instrumentationKey)
     script = script.replace(/const\s+instrumentationKey\s*=\s*'[^']*'\s*;/, "const instrumentationKey = '" + instrumentationKey + "';")
-    script = script.replace(/const\s+version\s*=\s*'[^']*'\s*;/, "const version = '" + taskVersion + "';");
+
+    if (taskVersion)
+        script = script.replace(/const\s+version\s*=\s*'[^']*'\s*;/, "const version = '" + taskVersion + "';");
 
     fs.writeFileSync(scriptPath, script);
 }
