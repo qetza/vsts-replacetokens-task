@@ -504,7 +504,7 @@ async function run() {
         // initialize task
         let escapedTokenPrefix: string = tokenPrefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         let escapedTokenSuffix: string = tokenSuffix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        let regex: RegExp = new RegExp(escapedTokenPrefix + '\\s*((?:(?!\\s*' + escapedTokenSuffix + ').)*)\\s*' + escapedTokenSuffix, 'gm');
+        let regex: RegExp = new RegExp(escapedTokenPrefix + '\\s*((?:(?!' + escapedTokenPrefix + ')(?!\\s*' + escapedTokenSuffix + ').)*)\\s*' + escapedTokenSuffix, 'gm');
         logger.debug('pattern: ' + regex.source);
 
         // set telemetry data
