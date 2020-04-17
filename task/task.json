@@ -12,8 +12,8 @@
     "author": "Guillaume Rouchon",
     "version": {
         "Major": 3,
-        "Minor": 5,
-        "Patch": 2
+        "Minor": 6,
+        "Patch": 0
     },
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
     "minimumAgentVersion": "2.105.0",
@@ -153,6 +153,15 @@
             "groupName": "advanced",
             "required": true,
             "helpMarkDown": "The suffix of the tokens to search in the target files."
+        },
+        {
+            "name": "useLegacyPattern",
+            "type": "boolean",
+            "label": "Use legacy pattern",
+            "defaultValue": "false",
+            "groupName": "advanced",
+            "required": true,
+            "helpMarkDown": "If checked whitespaces between the token prefix/suffix and the variable name are not ignored."
         },
         {
             "name": "emptyValue",

@@ -61,7 +61,8 @@ export default function trackEvent(event: TelemetryEvent, proxyUrl?: string): st
                         duration: event.duration,
                         tokenReplaced: event.tokenReplaced,
                         tokenFound: event.tokenFound,
-                        fileProcessed: event.fileProcessed
+                        fileProcessed: event.fileProcessed,
+                        useLegacyPattern: event.useLegacyPattern
                     }
                 }
             }
@@ -156,4 +157,5 @@ export interface TelemetryEvent {
   tokenReplaced: number;
   tokenFound: number;
   fileProcessed: number;
+  useLegacyPattern: boolean;
 }

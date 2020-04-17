@@ -51,6 +51,7 @@ Parameters include (in parenthesis the yaml name):
 - **Keep token** (keepToken): if checked tokens with missing variables will not be replaced by empty string.
 - **Token prefix** (tokenPrefix): the prefix of the tokens to search in the target files.
 - **Token suffix** (tokenSuffix): the suffix of the tokens to search in the target files.
+- **Use legacy pattern** (useLegacyPattern): if checked whitespaces between the token prefix/suffix and the variable name are not ignored.  
 - **Empty value** (emptyValue): the variable value that will be replaced with an empty string.
 - **Variable files (JSON)** (variableFiles): the absolute or relative comma or newline-separated paths to the files containing additional variables. Wildcards can be used (eg: `vars\**\*.json` for all _.json_ files in all sub folders of _vars_). Variables declared in files overrides variables defined in the pipeline.
 - **Variable separator** (variableSeparator): the separtor to use in variable names for nested objects and arrays in variable files. Example: `{ 'My': { 'Value': ['Hello World!'] } }` will create a variable _My.Value.0_ with the value _Hello World!_.
@@ -68,6 +69,9 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 3.6.0**
+- Add parameter _Use legacy pattern_ with default value to `false`. 
+
 **New in 3.5.2**
 - Fix issue when token prefix present but not as a token prefix ([#149](https://github.com/qetza/vsts-replacetokens-task/issues/149)).
 

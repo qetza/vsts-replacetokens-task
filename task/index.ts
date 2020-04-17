@@ -414,6 +414,7 @@ async function run() {
         let root: string = tl.getPathInput('rootDirectory', false, true);
         let tokenPrefix: string = tl.getInput('tokenPrefix', true);
         let tokenSuffix: string = tl.getInput('tokenSuffix', true);
+        let useLegacyPattern: boolean = tl.getBoolInput('useLegacyPattern', true);
         let options: Options = {
             encoding: mapEncoding(tl.getInput('encoding', true)),
             keepToken: tl.getBoolInput('keepToken', true),
@@ -504,7 +505,10 @@ async function run() {
         // initialize task
         let escapedTokenPrefix: string = tokenPrefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         let escapedTokenSuffix: string = tokenSuffix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-        let regex: RegExp = new RegExp(escapedTokenPrefix + '\\s*((?:(?!' + escapedTokenPrefix + ')(?!\\s*' + escapedTokenSuffix + ').)*)\\s*' + escapedTokenSuffix, 'gm');
+        let pattern = useLegacyPattern 
+            ? escapedTokenPrefix + '((?:(?!' + escapedTokenSuffix + ').)*)' + escapedTokenSuffix
+            : escapedTokenPrefix + '\\s*((?:(?!' + escapedTokenPrefix + ')(?!\\s*' + escapedTokenSuffix + ').)*)\\s*' + escapedTokenSuffix;
+        let regex: RegExp = new RegExp(pattern, 'gm');
         logger.debug('pattern: ' + regex.source);
 
         // set telemetry data
@@ -527,6 +531,7 @@ async function run() {
         telemetryEvent.variableSeparator = variableSeparator;
         telemetryEvent.verbosity = options.verbosity;
         telemetryEvent.writeBOM = options.writeBOM;
+        telemetryEvent.useLegacyPattern = useLegacyPattern;
 
         // process files
         rules.forEach(rule => {
