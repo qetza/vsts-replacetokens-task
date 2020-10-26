@@ -35,6 +35,8 @@ interface Options {
     readonly escapeChar: string, 
     readonly charsToEscape: string,
     readonly verbosity: string
+    readonly setValueIfVarNotFound: boolean
+    readonly valueForNotFound: string
 }
 
 interface Rule {
@@ -264,8 +266,12 @@ var replaceTokensInFile = function (
             if (options.keepToken)
                 value = match;
             else
-                value = '';
-
+            {
+                if (options.setValueIfVarNotFound)
+                    value = options.valueForNotFound;
+                else                    
+                    value = '';
+            }
             let message: string = '  variable not found: ' + name;
             switch (options.actionOnMissing)
             {
@@ -423,6 +429,8 @@ async function run() {
             emptyValue: tl.getInput('emptyValue', false),
             escapeType: tl.getInput('escapeType', false),
             escapeChar: tl.getInput('escapeChar', false),
+            valueForNotFound: tl.getInput('valueForNotFound', false),
+            setValueIfVarNotFound: tl.getBoolInput('setValueIfVarNotFound', false),
             charsToEscape: tl.getInput('charsToEscape', false),
             verbosity: tl.getInput('verbosity', true)
         };
