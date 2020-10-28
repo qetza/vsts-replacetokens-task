@@ -122,10 +122,11 @@ class Counter {
     public Tokens: number = 0;
     public Replaced: number = 0;
     public Files: number = 0;
+    public NotFound: number = 0;
 }
 
 var logger: ILogger = new NullLogger();
-var globalCounters: Counter = new Counter(); 
+var globalCounters: Counter = new Counter();
 var fileVariables: {[name: string]: string} = {};
 
 var mapEncoding = function (encoding: string): string {
@@ -268,11 +269,19 @@ var replaceTokensInFile = function (
             else
             {
                 if (options.setValueIfVarNotFound)
+                {
+                    ++localCounter.NotFound;
+                    ++localCounter.Replaced;
                     value = options.valueForNotFound;
+                }
                 else                    
                     value = '';
             }
-            let message: string = '  variable not found: ' + name;
+            let message: string = ''
+            if (options.setValueIfVarNotFound)
+                message = '  variable not found: ' + name + '. But it was replaced with the default value: ' + options.valueForNotFound;
+            else
+                message = '  variable not found: ' + name;
             switch (options.actionOnMissing)
             {
                 case ACTION_WARN:
@@ -370,10 +379,14 @@ var replaceTokensInFile = function (
 
     // write file & log
     fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
-    logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens);
+    if (options.setValueIfVarNotFound)
+        logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens + '. But ' + localCounter.NotFound + ' was replaced with the default value: ' + options.valueForNotFound);
+    else
+        logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens);
 
     globalCounters.Tokens += localCounter.Tokens;
     globalCounters.Replaced += localCounter.Replaced;
+    globalCounters.NotFound += localCounter.NotFound;
 }
 
 var mapLogLevel = function (level: string): LogLevel {
@@ -584,6 +597,7 @@ async function run() {
         telemetryEvent.duration = duration;
         telemetryEvent.tokenReplaced = globalCounters.Replaced;
         telemetryEvent.tokenFound = globalCounters.Tokens;
+        telemetryEvent.notFound = globalCounters.NotFound;
         telemetryEvent.fileProcessed = globalCounters.Files;
     }
     catch (err)
