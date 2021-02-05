@@ -201,6 +201,20 @@
             "helpMarkDown": "If checked anonymous usage data will be sent to the task author for task usage analysis."
         }
     ],
+    "outputVariables": [
+        {
+            "name": "tokenReplacedCount",
+            "description": "Total number of tokens replaced."
+        },
+        {
+            "name": "tokenFoundCount",
+            "description": "Total number of tokens found."
+        },
+        {
+            "name": "fileProcessedCount",
+            "description": "Total number of files processed."
+        }
+    ],
     "execution": {
         "Node": {
             "target": "index.js"
