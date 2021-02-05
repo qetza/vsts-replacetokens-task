@@ -12,7 +12,7 @@
     "author": "Guillaume Rouchon",
     "version": {
         "Major": 3,
-        "Minor": 6,
+        "Minor": 7,
         "Patch": 0
     },
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
@@ -199,6 +199,20 @@
             "groupName": "advanced",
             "required": true,
             "helpMarkDown": "If checked anonymous usage data will be sent to the task author for task usage analysis."
+        }
+    ],
+    "outputVariables": [
+        {
+            "name": "tokenReplacedCount",
+            "description": "Total number of tokens replaced."
+        },
+        {
+            "name": "tokenFoundCount",
+            "description": "Total number of tokens found."
+        },
+        {
+            "name": "fileProcessedCount",
+            "description": "Total number of files processed."
         }
     ],
     "execution": {

@@ -570,6 +570,11 @@ async function run() {
             });
         });
 
+        // display summary
+        tl.setVariable('tokenReplacedCount', globalCounters.Replaced.toString());
+        tl.setVariable('tokenFoundCount', globalCounters.Tokens.toString());
+        tl.setVariable('fileProcessedCount', globalCounters.Files.toString());
+
         let duration = (+new Date() - (+startTime)) / 1000;
         logger.info('replaced ' + globalCounters.Replaced + ' tokens out of ' + globalCounters.Tokens + ' in ' + globalCounters.Files + ' file(s) in ' + duration + ' seconds.');
 
