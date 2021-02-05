@@ -55,6 +55,12 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
 - **Token suffix** (tokenSuffix): the suffix of the tokens to search in the target files.
 - **Use legacy pattern** (useLegacyPattern): if checked whitespaces between the token prefix/suffix and the variable name are not ignored.  
 - **Empty value** (emptyValue): the variable value that will be replaced with an empty string.
+- **Enable transformations** (enableTransforms): if checked transformations can be applied on variable values. The following transformations are available:
+  - _lower_: make variable value lower case. Example: `#{lower(MyVar)}#`
+  - _upper_: make variable value upper case. Example: `#{upper(MyVar)}#`
+  - _noescape_: disable variable value escaping. (this can be used if you want to inject raw JSON or XML for example). Example: `#{noescape(MyVar)}#`
+- **Transform prefix** (transformPrefix): The prefix between transform name and token name. Default: `(`.
+- **Transform suffix** (transformSuffix): The suffix after the token name. Default: `)`.
 - **Variable files (JSON)** (variableFiles): the absolute or relative comma or newline-separated paths to the files containing additional variables. Wildcards can be used (eg: `vars\**\*.json` for all _.json_ files in all sub folders of _vars_). Variables declared in files overrides variables defined in the pipeline.
 - **Variable separator** (variableSeparator): the separtor to use in variable names for nested objects and arrays in variable files. Example: `{ 'My': { 'Value': ['Hello World!'] } }` will create a variable _My.Value.0_ with the value _Hello World!_.
 - **Send anonymous usage telemetry** (enableTelemetry): if checked anonymous usage data (hashed collection and pipeline id, no file parameter values, no variable values) will be sent to the task author only to analyze task usage.
@@ -64,6 +70,7 @@ The task creates the following as output variables:
 - **tokenReplacedCount**: the total number of tokens which were replaced by a variable.
 - **tokenFoundCount**: the total number of of tokens which were found.
 - **fileProcessedCount**: the total number of files which were processed.
+- **transformExecutedCount**: the total number of transformations which were executed.
 
 ## Data/Telemetry
 The Replace Tokens task for Azure Pipelines collects anonymous usage data and sends them to its author to help improve the product. If you don’t wish to send usage data, you can change your telemetry settings through _Send anonymous usage telemetry_ parameter or by setting a variable or environment variable `REPLACE_TOKENS_DISABLE_TELEMETRY` to `true`.
@@ -79,6 +86,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 ## Release notes
 **New in 3.7.0**
 - Add output variables _tokenReplacedCount_, _tokenFoundCount_ and _fileProcessedCount_ ([#160](https://github.com/qetza/vsts-replacetokens-task/issues/160)).
+- Add support for variable transformations with _Enable tranformations_ ([#96](https://github.com/qetza/vsts-replacetokens-task/issues/96)).
 
 **New in 3.6.0**
 - Add parameter _Use legacy pattern_ with default value to `false`. 

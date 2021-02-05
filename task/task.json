@@ -173,6 +173,35 @@
             "helpMarkDown": "The variable value which will be replaced by an empty string."
         },
         {
+            "name": "enableTransforms",
+            "type": "boolean",
+            "label": "Enable transformations",
+            "defaultValue": "false",
+            "groupName": "advanced",
+            "required": true,
+            "helpMarkDown": "If checked transformations can be applied on variable values.<br/>Syntax: {token prefix}{transformation name}{transform prefix}{token}{transform suffix}{token suffix}<br/>Example: #{lower(MyVar)}#"
+        },
+        {
+            "name": "transformPrefix",
+            "type": "string",
+            "label": "Transform prefix",
+            "defaultValue": "(",
+            "groupName": "advanced",
+            "required": true,
+            "helpMarkDown": "The prefix between transform name and token name.",
+            "visibleRule": "enableTransforms == true"
+        },
+        {
+            "name": "transformSuffix",
+            "type": "string",
+            "label": "Transform suffix",
+            "defaultValue": ")",
+            "groupName": "advanced",
+            "required": true,
+            "helpMarkDown": "The suffix after the token name.",
+            "visibleRule": "enableTransforms == true"
+        },
+        {
             "name": "variableFiles",
             "type": "multiLine",
             "label": "Variable files (JSON)",
@@ -213,6 +242,10 @@
         {
             "name": "fileProcessedCount",
             "description": "Total number of files processed."
+        },
+        {
+            "name": "transformExecutedCount",
+            "description": "Total number of transformations executed."
         }
     ],
     "execution": {

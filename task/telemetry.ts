@@ -158,4 +158,9 @@ export interface TelemetryEvent {
   tokenFound: number;
   fileProcessed: number;
   useLegacyPattern: boolean;
+  enableTransforms: boolean;
+  transformPrefix: string;
+  transformSuffix: string;
+  transformPattern: string;
+  transformExecuted: number;
 }
