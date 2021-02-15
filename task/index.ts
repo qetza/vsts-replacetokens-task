@@ -296,10 +296,8 @@ var replaceTokensInFile = function (
                     value = '';
             }
             let message: string = ''
-            if (options.setValueIfVarNotFound)
-                message = '  variable not found: ' + name + '. But it was replaced with the default value: ' + options.valueForNotFound;
-            else
-                message = '  variable not found: ' + name;
+            message = '  variable not found: ' + name + (options.setValueIfVarNotFound ? '. But it was replaced with the default value: ' + options.valueForNotFound : '');
+
             switch (options.actionOnMissing)
             {
                 case ACTION_WARN:
@@ -426,7 +424,7 @@ var replaceTokensInFile = function (
     // write file & log
     fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
 
-    logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens + (options.enableTransforms ? ' and running ' + localCounter.Transforms + ' transformations' : '') + (options.setValueIfVarNotFound ? '. But ' + localCounter.NotFound + ' tokens was replaced with the default value: ' + options.valueForNotFound)'));
+    logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens + (options.enableTransforms ? ' and running ' + localCounter.Transforms + ' transformations' : '') + (options.setValueIfVarNotFound ? '. But ' + localCounter.NotFound + ' tokens was replaced with the default value: ' + options.valueForNotFound : ''));
 
     globalCounters.Tokens += localCounter.Tokens;
     globalCounters.Replaced += localCounter.Replaced;
