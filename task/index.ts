@@ -34,9 +34,10 @@ interface Options {
     readonly escapeType: string,
     readonly escapeChar: string, 
     readonly charsToEscape: string,
-    readonly verbosity: string
-    readonly setValueIfVarNotFound: boolean
-    readonly valueForNotFound: string
+    readonly verbosity: string,
+    readonly setValueIfVarNotFound: boolean,
+    readonly valueForNotFound: string,
+    readonly enableTransforms: boolean
 }
 
 interface Rule {
@@ -123,6 +124,7 @@ class Counter {
     public Replaced: number = 0;
     public Files: number = 0;
     public NotFound: number = 0;
+    public Transforms: number = 0;
 }
 
 var logger: ILogger = new NullLogger();
@@ -238,6 +240,7 @@ var replaceTokensInFile = function (
     filePath: string, 
     outputPath: string,
     regex: RegExp, 
+    transformRegex: RegExp,
     options: Options): void {
     logger.info('replacing tokens in: ' + filePath);
 
@@ -258,6 +261,21 @@ var replaceTokensInFile = function (
     content = content.replace(regex, (match, name) => {
         ++localCounter.Tokens;
 
+        // extract transformation
+        let transformName: string = null;
+        if (options.enableTransforms)
+        {
+            let m = name.match(transformRegex);
+            if (m)
+            {
+                ++localCounter.Transforms;
+
+                transformName = m[1];
+                name = m[2];
+            }
+        }
+
+        // replace value
         let value: string = tl.getVariable(name);
         if (name in fileVariables)
             value = fileVariables[name];
@@ -302,6 +320,29 @@ var replaceTokensInFile = function (
 
             if (options.emptyValue && value === options.emptyValue)
                 value = '';
+
+            // apply transformation
+            if (transformName)
+            {
+                switch (transformName) {
+                    case 'lower':
+                        value = value.toLowerCase();
+                        break;
+
+                    case 'upper':
+                        value = value.toUpperCase();
+                        break;
+                    
+                    case 'noescape':
+                        // nothing done here, disable escaping later
+                        break;
+                    
+                    default:
+                        --localCounter.Transforms;
+                        logger.warn('  unknown transform: ' + transformName);
+                        break;
+                }
+            }
         }
 
         let escapeType: string = options.escapeType;
@@ -320,6 +361,11 @@ var replaceTokensInFile = function (
                     escapeType = 'none';
                     break;
             }
+        }
+
+        if (transformName === 'noescape')
+        {
+            escapeType = 'none';
         }
 
         // log value before escaping to show raw value and avoid secret leaks (escaped secrets are not replaced by ***)
@@ -379,14 +425,13 @@ var replaceTokensInFile = function (
 
     // write file & log
     fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
-    if (options.setValueIfVarNotFound)
-        logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens + '. But ' + localCounter.NotFound + ' was replaced with the default value: ' + options.valueForNotFound);
-    else
-        logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens);
+
+    logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens + (options.enableTransforms ? ' and running ' + localCounter.Transforms + ' transformations' : '') + (options.setValueIfVarNotFound ? '. But ' + localCounter.NotFound + ' tokens was replaced with the default value: ' + options.valueForNotFound)'));
 
     globalCounters.Tokens += localCounter.Tokens;
     globalCounters.Replaced += localCounter.Replaced;
     globalCounters.NotFound += localCounter.NotFound;
+    globalCounters.Transforms += localCounter.Transforms;
 }
 
 var mapLogLevel = function (level: string): LogLevel {
@@ -445,8 +490,11 @@ async function run() {
             valueForNotFound: tl.getInput('valueForNotFound', false),
             setValueIfVarNotFound: tl.getBoolInput('setValueIfVarNotFound', false),
             charsToEscape: tl.getInput('charsToEscape', false),
-            verbosity: tl.getInput('verbosity', true)
+            verbosity: tl.getInput('verbosity', true),
+            enableTransforms: tl.getBoolInput('enableTransforms', false),
         };
+        let transformPrefix: string = tl.getInput('transformPrefix', true);
+        let transformSuffix: string = tl.getInput('transformSuffix', true);
 
         logger = new Logger(mapLogLevel(options.verbosity));
 
@@ -532,6 +580,12 @@ async function run() {
         let regex: RegExp = new RegExp(pattern, 'gm');
         logger.debug('pattern: ' + regex.source);
 
+        let escapedTransformPrefix: string = transformPrefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        let escapedTransformSuffix: string = transformSuffix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+        let transformPattern = '\\s*(.*)' + escapedTransformPrefix + '\\s*((?:(?!' + escapedTransformPrefix + ')(?!\\s*' + escapedTransformSuffix + ').)*)\\s*' + escapedTransformSuffix + '\\s*';
+        let transformRegex: RegExp = new RegExp(transformPattern);
+        logger.debug('transform pattern: ' + transformRegex.source);
+
         // set telemetry data
         telemetryEvent.actionOnMissing = options.actionOnMissing;
         telemetryEvent.charsToEscape = options.charsToEscape;
@@ -553,6 +607,10 @@ async function run() {
         telemetryEvent.verbosity = options.verbosity;
         telemetryEvent.writeBOM = options.writeBOM;
         telemetryEvent.useLegacyPattern = useLegacyPattern;
+        telemetryEvent.enableTransforms = options.enableTransforms;
+        telemetryEvent.transformPrefix = transformPrefix;
+        telemetryEvent.transformSuffix = transformSuffix;
+        telemetryEvent.transformPattern = transformPattern;
 
         // process files
         rules.forEach(rule => {
@@ -586,19 +644,26 @@ async function run() {
                         outputPath = path.join(path.dirname(filePath), outputPath);
                 }
 
-                replaceTokensInFile(filePath, outputPath, regex, options);
+                replaceTokensInFile(filePath, outputPath, regex, transformRegex, options);
                 ++globalCounters.Files;
             });
         });
 
+        // display summary
+        tl.setVariable('tokenReplacedCount', globalCounters.Replaced.toString());
+        tl.setVariable('tokenFoundCount', globalCounters.Tokens.toString());
+        tl.setVariable('fileProcessedCount', globalCounters.Files.toString());
+        tl.setVariable('transformExecutedCount', globalCounters.Transforms.toString());
+
         let duration = (+new Date() - (+startTime)) / 1000;
-        logger.info('replaced ' + globalCounters.Replaced + ' tokens out of ' + globalCounters.Tokens + ' in ' + globalCounters.Files + ' file(s) in ' + duration + ' seconds.');
+        logger.info('replaced ' + globalCounters.Replaced + ' tokens out of ' + globalCounters.Tokens + (options.enableTransforms ? ' and running ' + globalCounters.Transforms + ' functions' : '') + ' in ' + globalCounters.Files + ' file(s) in ' + duration + ' seconds.');
 
         telemetryEvent.duration = duration;
         telemetryEvent.tokenReplaced = globalCounters.Replaced;
         telemetryEvent.tokenFound = globalCounters.Tokens;
         telemetryEvent.notFound = globalCounters.NotFound;
         telemetryEvent.fileProcessed = globalCounters.Files;
+        telemetryEvent.transformExecuted = globalCounters.Transforms;
     }
     catch (err)
     {
