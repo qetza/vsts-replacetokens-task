@@ -35,7 +35,9 @@ interface Options {
     readonly escapeChar: string, 
     readonly charsToEscape: string,
     readonly verbosity: string,
-    readonly enableTransforms: boolean,
+    readonly setValueIfVarNotFound: boolean,
+    readonly valueForNotFound: string,
+    readonly enableTransforms: boolean
 }
 
 interface Rule {
@@ -121,11 +123,12 @@ class Counter {
     public Tokens: number = 0;
     public Replaced: number = 0;
     public Files: number = 0;
+    public NotFound: number = 0;
     public Transforms: number = 0;
 }
 
 var logger: ILogger = new NullLogger();
-var globalCounters: Counter = new Counter(); 
+var globalCounters: Counter = new Counter();
 var fileVariables: {[name: string]: string} = {};
 
 var mapEncoding = function (encoding: string): string {
@@ -282,9 +285,19 @@ var replaceTokensInFile = function (
             if (options.keepToken)
                 value = match;
             else
-                value = '';
+            {
+                if (options.setValueIfVarNotFound)
+                {
+                    ++localCounter.NotFound;
+                    ++localCounter.Replaced;
+                    value = options.valueForNotFound;
+                }
+                else                    
+                    value = '';
+            }
+            let message: string = ''
+            message = '  variable not found: ' + name + (options.setValueIfVarNotFound ? '. But it was replaced with the default value: ' + options.valueForNotFound : '');
 
-            let message: string = '  variable not found: ' + name;
             switch (options.actionOnMissing)
             {
                 case ACTION_WARN:
@@ -410,10 +423,12 @@ var replaceTokensInFile = function (
 
     // write file & log
     fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
-    logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens + (options.enableTransforms ? ' and running ' + localCounter.Transforms + ' transformations' : ''));
+
+    logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens + (options.enableTransforms ? ' and running ' + localCounter.Transforms + ' transformations' : '') + (options.setValueIfVarNotFound ? '. But ' + localCounter.NotFound + ' tokens was replaced with the default value: ' + options.valueForNotFound : ''));
 
     globalCounters.Tokens += localCounter.Tokens;
     globalCounters.Replaced += localCounter.Replaced;
+    globalCounters.NotFound += localCounter.NotFound;
     globalCounters.Transforms += localCounter.Transforms;
 }
 
@@ -470,6 +485,8 @@ async function run() {
             emptyValue: tl.getInput('emptyValue', false),
             escapeType: tl.getInput('escapeType', false),
             escapeChar: tl.getInput('escapeChar', false),
+            valueForNotFound: tl.getInput('valueForNotFound', false),
+            setValueIfVarNotFound: tl.getBoolInput('setValueIfVarNotFound', false),
             charsToEscape: tl.getInput('charsToEscape', false),
             verbosity: tl.getInput('verbosity', true),
             enableTransforms: tl.getBoolInput('enableTransforms', false),
@@ -642,6 +659,7 @@ async function run() {
         telemetryEvent.duration = duration;
         telemetryEvent.tokenReplaced = globalCounters.Replaced;
         telemetryEvent.tokenFound = globalCounters.Tokens;
+        telemetryEvent.notFound = globalCounters.NotFound;
         telemetryEvent.fileProcessed = globalCounters.Files;
         telemetryEvent.transformExecuted = globalCounters.Transforms;
     }

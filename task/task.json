@@ -173,6 +173,25 @@
             "helpMarkDown": "The variable value which will be replaced by an empty string."
         },
         {
+            "name": "setValueIfVarNotFound",
+            "type": "boolean",
+            "label": "Set value if variable not found",
+            "defaultValue": "false",
+            "groupName": "advanced",
+            "required": false,
+            "helpMarkDown": "If the token is found, but the variable not, replace the token with a fixed string (avoids empty replacements)."
+        },
+        {
+            "name": "valueForNotFound",
+            "type": "string",
+            "label": "Value for tokens not found",
+            "defaultValue": "VariableNotFound",
+            "visibleRule": "setValueIfVarNotFound = true",
+            "groupName": "advanced",
+            "required": false,
+            "helpMarkDown": "Fixed string, which will be used, if a variable is not found and the value should not be empty"
+        },
+        {
             "name": "enableTransforms",
             "type": "boolean",
             "label": "Enable transformations",
