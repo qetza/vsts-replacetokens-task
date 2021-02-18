@@ -213,11 +213,11 @@
         {
             "name": "variableFiles",
             "type": "multiLine",
-            "label": "Variable files (JSON)",
+            "label": "Variable files (JSON or YAML)",
             "defaultValue": "",
             "groupName": "advanced",
             "required": false,
-            "helpMarkDown": "Absolute or relative comma or newline-separated paths to the files containing additional variables (wildcards can be used)."
+            "helpMarkDown": "Absolute or relative comma or newline-separated paths to the files containing additional variables (wildcards can be used). YAML files must have the .yml or .yaml extension otherwise the file is treated as JSON."
         },
         {
             "name": "variableSeparator",
