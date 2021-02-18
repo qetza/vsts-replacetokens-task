@@ -6,6 +6,7 @@ import path = require('path');
 import os = require('os');
 import crypto = require('crypto');
 import trackEvent, { TelemetryEvent } from './telemetry';
+import yaml = require('js-yaml');
 
 const ENCODING_AUTO: string = 'auto';
 const ENCODING_ASCII: string = 'ascii';
@@ -539,10 +540,10 @@ async function run() {
 
         tl.getDelimitedInput('variableFiles', '\n', false).forEach((l: string) => {
             if (l)
-                l.split(',').forEach((path: string) => {
-                    if (path)
+                l.split(',').forEach((p: string) => {
+                    if (p)
                     {
-                        tl.findMatch(root, normalize(path)).forEach(filePath => {
+                        tl.findMatch(root, normalize(p)).forEach(filePath => {
                             if (tl.stats(filePath).isDirectory())
                                 return;
             
@@ -556,7 +557,11 @@ async function run() {
                             logger.info('##[group]loading variables from: ' + filePath);
 
                             let encoding: string = getEncoding(filePath);
-                            let variables: any = JSON.parse(iconv.decode(fs.readFileSync(filePath), encoding));
+                            let extension: string = path.extname(filePath).toLowerCase();
+                            let content: string = iconv.decode(fs.readFileSync(filePath), encoding);
+                            let variables: any = extension === '.yaml' || extension === '.yml' 
+                                ? yaml.load(content)
+                                : JSON.parse(content);
 
                             let count: number = loadVariablesFromJson(variables, '', variableSeparator, fileVariables);
 

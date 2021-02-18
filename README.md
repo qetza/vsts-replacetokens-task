@@ -62,7 +62,7 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
   - _noescape_: disable variable value escaping. (this can be used if you want to inject raw JSON or XML for example). Example: `#{noescape(MyVar)}#`
 - **Transform prefix** (transformPrefix): The prefix between transform name and token name. Default: `(`.
 - **Transform suffix** (transformSuffix): The suffix after the token name. Default: `)`.
-- **Variable files (JSON)** (variableFiles): the absolute or relative comma or newline-separated paths to the files containing additional variables. Wildcards can be used (eg: `vars\**\*.json` for all _.json_ files in all sub folders of _vars_). Variables declared in files overrides variables defined in the pipeline.
+- **Variable files (JSON or YAML)** (variableFiles): the absolute or relative comma or newline-separated paths to the files containing additional variables. Wildcards can be used (eg: `vars\**\*.json` for all _.json_ files in all sub folders of _vars_). YAML files **must have** the `.yml`or `.yaml` extension otherwise the file is treated as JSON. Variables declared in files overrides variables defined in the pipeline.
 - **Variable separator** (variableSeparator): the separtor to use in variable names for nested objects and arrays in variable files. Example: `{ 'My': { 'Value': ['Hello World!'] } }` will create a variable _My.Value.0_ with the value _Hello World!_.
 - **Send anonymous usage telemetry** (enableTelemetry): if checked anonymous usage data (hashed collection and pipeline id, no file parameter values, no variable values) will be sent to the task author only to analyze task usage.
 
@@ -91,6 +91,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 - Add support for variable transformations with _Enable tranformations_ ([#96](https://github.com/qetza/vsts-replacetokens-task/issues/96)).
 - Add default value for tokens not found with _Default value_ (contribution from [ClemensSutor](https://github.com/ClemensSutor)).
 - Group log outputs in Azure Pipelines output.
+- Add support for variables in external YAML files with `.yml` or `.yaml` extension ([#177](https://github.com/qetza/vsts-replacetokens-task/issues/177)).
 
 **New in 3.6.0**
 - Add parameter _Use legacy pattern_ with default value to `false`. 
