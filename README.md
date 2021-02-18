@@ -55,6 +55,7 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
 - **Token suffix** (tokenSuffix): the suffix of the tokens to search in the target files.
 - **Use legacy pattern** (useLegacyPattern): if checked whitespaces between the token prefix/suffix and the variable name are not ignored.  
 - **Empty value** (emptyValue): the variable value that will be replaced with an empty string.
+- **Default value** (defaultValue): the value to be used if a variable is not found. Do not set to disable default value feature. (to replace with an empty string set the default value to the _Empty value_)
 - **Enable transformations** (enableTransforms): if checked transformations can be applied on variable values. The following transformations are available:
   - _lower_: make variable value lower case. Example: `#{lower(MyVar)}#`
   - _upper_: make variable value upper case. Example: `#{upper(MyVar)}#`
@@ -71,6 +72,7 @@ The task creates the following as output variables:
 - **tokenFoundCount**: the total number of of tokens which were found.
 - **fileProcessedCount**: the total number of files which were processed.
 - **transformExecutedCount**: the total number of transformations which were executed.
+- **defaultValueCount**: the total number of default value used.
 
 ## Data/Telemetry
 The Replace Tokens task for Azure Pipelines collects anonymous usage data and sends them to its author to help improve the product. If you don’t wish to send usage data, you can change your telemetry settings through _Send anonymous usage telemetry_ parameter or by setting a variable or environment variable `REPLACE_TOKENS_DISABLE_TELEMETRY` to `true`.
@@ -87,6 +89,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 **New in 3.7.0**
 - Add output variables _tokenReplacedCount_, _tokenFoundCount_ and _fileProcessedCount_ ([#160](https://github.com/qetza/vsts-replacetokens-task/issues/160)).
 - Add support for variable transformations with _Enable tranformations_ ([#96](https://github.com/qetza/vsts-replacetokens-task/issues/96)).
+- Add default value for tokens not found with _Default value_ (contribution from [ClemensSutor](https://github.com/ClemensSutor)).
 
 **New in 3.6.0**
 - Add parameter _Use legacy pattern_ with default value to `false`. 

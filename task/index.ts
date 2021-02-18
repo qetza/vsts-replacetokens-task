@@ -35,8 +35,7 @@ interface Options {
     readonly escapeChar: string, 
     readonly charsToEscape: string,
     readonly verbosity: string,
-    readonly setValueIfVarNotFound: boolean,
-    readonly valueForNotFound: string,
+    readonly defaultValue: string,
     readonly enableTransforms: boolean
 }
 
@@ -123,7 +122,7 @@ class Counter {
     public Tokens: number = 0;
     public Replaced: number = 0;
     public Files: number = 0;
-    public NotFound: number = 0;
+    public DefaultValues: number = 0;
     public Transforms: number = 0;
 }
 
@@ -280,24 +279,23 @@ var replaceTokensInFile = function (
         if (name in fileVariables)
             value = fileVariables[name];
 
+        let usedDefaultValue: boolean = false;
+        if (!value && options.defaultValue)
+        {
+            ++localCounter.DefaultValues;
+
+            value = options.defaultValue;
+            usedDefaultValue = true;
+        }
+
         if (!value)
         {
             if (options.keepToken)
                 value = match;
-            else
-            {
-                if (options.setValueIfVarNotFound)
-                {
-                    ++localCounter.NotFound;
-                    ++localCounter.Replaced;
-                    value = options.valueForNotFound;
-                }
-                else                    
-                    value = '';
-            }
-            let message: string = ''
-            message = '  variable not found: ' + name + (options.setValueIfVarNotFound ? '. But it was replaced with the default value: ' + options.valueForNotFound : '');
+            else                 
+                value = '';
 
+            let message: string = '  variable not found: ' + name;
             switch (options.actionOnMissing)
             {
                 case ACTION_WARN:
@@ -367,7 +365,7 @@ var replaceTokensInFile = function (
         }
 
         // log value before escaping to show raw value and avoid secret leaks (escaped secrets are not replaced by ***)
-        logger.debug('  ' + name + ': ' + value);
+        logger.debug('  ' + name + ': ' + value + (usedDefaultValue ? ' (default value)' : ''));
 
         switch (escapeType) {
             case 'json':
@@ -424,11 +422,11 @@ var replaceTokensInFile = function (
     // write file & log
     fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
 
-    logger.info('  ' + localCounter.Replaced + ' tokens replaced out of ' + localCounter.Tokens + (options.enableTransforms ? ' and running ' + localCounter.Transforms + ' transformations' : '') + (options.setValueIfVarNotFound ? '. But ' + localCounter.NotFound + ' tokens was replaced with the default value: ' + options.valueForNotFound : ''));
+    logger.info('  ' + localCounter.Replaced + ' token(s) replaced out of ' + localCounter.Tokens + (localCounter.DefaultValues ? ' (using ' + localCounter.DefaultValues + ' default value(s))' : '') + (options.enableTransforms ? ' and running ' + localCounter.Transforms + ' transformation(s)' : ''));
 
     globalCounters.Tokens += localCounter.Tokens;
     globalCounters.Replaced += localCounter.Replaced;
-    globalCounters.NotFound += localCounter.NotFound;
+    globalCounters.DefaultValues += localCounter.DefaultValues;
     globalCounters.Transforms += localCounter.Transforms;
 }
 
@@ -485,8 +483,7 @@ async function run() {
             emptyValue: tl.getInput('emptyValue', false),
             escapeType: tl.getInput('escapeType', false),
             escapeChar: tl.getInput('escapeChar', false),
-            valueForNotFound: tl.getInput('valueForNotFound', false),
-            setValueIfVarNotFound: tl.getBoolInput('setValueIfVarNotFound', false),
+            defaultValue: tl.getInput('defaultValue', false),
             charsToEscape: tl.getInput('charsToEscape', false),
             verbosity: tl.getInput('verbosity', true),
             enableTransforms: tl.getBoolInput('enableTransforms', false),
@@ -609,6 +606,7 @@ async function run() {
         telemetryEvent.transformPrefix = transformPrefix;
         telemetryEvent.transformSuffix = transformSuffix;
         telemetryEvent.transformPattern = transformPattern;
+        telemetryEvent.defaultValue = options.defaultValue;
 
         // process files
         rules.forEach(rule => {
@@ -652,14 +650,15 @@ async function run() {
         tl.setVariable('tokenFoundCount', globalCounters.Tokens.toString());
         tl.setVariable('fileProcessedCount', globalCounters.Files.toString());
         tl.setVariable('transformExecutedCount', globalCounters.Transforms.toString());
+        tl.setVariable('defaultValueCount', globalCounters.DefaultValues.toString());
 
         let duration = (+new Date() - (+startTime)) / 1000;
-        logger.info('replaced ' + globalCounters.Replaced + ' tokens out of ' + globalCounters.Tokens + (options.enableTransforms ? ' and running ' + globalCounters.Transforms + ' functions' : '') + ' in ' + globalCounters.Files + ' file(s) in ' + duration + ' seconds.');
+        logger.info('replaced ' + globalCounters.Replaced + ' tokens out of ' + globalCounters.Tokens + (globalCounters.DefaultValues ? ' (using ' + globalCounters.DefaultValues + ' default value(s))' : '') + (options.enableTransforms ? ' and running ' + globalCounters.Transforms + ' functions' : '') + ' in ' + globalCounters.Files + ' file(s) in ' + duration + ' seconds.');
 
         telemetryEvent.duration = duration;
         telemetryEvent.tokenReplaced = globalCounters.Replaced;
         telemetryEvent.tokenFound = globalCounters.Tokens;
-        telemetryEvent.notFound = globalCounters.NotFound;
+        telemetryEvent.defaultValueReplaced = globalCounters.DefaultValues;
         telemetryEvent.fileProcessed = globalCounters.Files;
         telemetryEvent.transformExecuted = globalCounters.Transforms;
     }
