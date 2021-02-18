@@ -63,6 +63,11 @@ export default function trackEvent(event: TelemetryEvent, proxyUrl?: string): st
                         tokenFound: event.tokenFound,                        
                         fileProcessed: event.fileProcessed,
                         useLegacyPattern: event.useLegacyPattern,
+                        enableTransforms: event.enableTransforms,
+                        transformPrefix: event.transformPrefix,
+                        transformSuffix: event.transformSuffix,
+                        transformPattern: event.transformPattern,
+                        transformExecuted: event.transformExecuted,
                         defaultValue: event.defaultValue,
                         defaultValueReplaced: event.defaultValueReplaced
                     }
