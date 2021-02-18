@@ -90,6 +90,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 - Add output variables _tokenReplacedCount_, _tokenFoundCount_ and _fileProcessedCount_ ([#160](https://github.com/qetza/vsts-replacetokens-task/issues/160)).
 - Add support for variable transformations with _Enable tranformations_ ([#96](https://github.com/qetza/vsts-replacetokens-task/issues/96)).
 - Add default value for tokens not found with _Default value_ (contribution from [ClemensSutor](https://github.com/ClemensSutor)).
+- Group log outputs in Azure Pipelines output.
 
 **New in 3.6.0**
 - Add parameter _Use legacy pattern_ with default value to `false`. 

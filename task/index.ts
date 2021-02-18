@@ -95,7 +95,7 @@ class Logger implements ILogger {
         // always log debug to system debug
         if (level === LogLevel.Debug)
             tl.debug(message);
-        
+
         // always set task result on error
         if (level === LogLevel.Error)
             tl.setResult(tl.TaskResult.Failed, message);
@@ -241,7 +241,7 @@ var replaceTokensInFile = function (
     regex: RegExp, 
     transformRegex: RegExp,
     options: Options): void {
-    logger.info('replacing tokens in: ' + filePath);
+    logger.info('##[group]replacing tokens in: ' + filePath);
 
     if (filePath !== outputPath)
         logger.info('  output in: ' + outputPath);
@@ -423,6 +423,7 @@ var replaceTokensInFile = function (
     fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
 
     logger.info('  ' + localCounter.Replaced + ' token(s) replaced out of ' + localCounter.Tokens + (localCounter.DefaultValues ? ' (using ' + localCounter.DefaultValues + ' default value(s))' : '') + (options.enableTransforms ? ' and running ' + localCounter.Transforms + ' transformation(s)' : ''));
+    logger.info('##[endgroup]');
 
     globalCounters.Tokens += localCounter.Tokens;
     globalCounters.Replaced += localCounter.Replaced;
@@ -552,7 +553,7 @@ async function run() {
                                 return;
                             }
 
-                            logger.info('loading variables from: ' + filePath);
+                            logger.info('##[group]loading variables from: ' + filePath);
 
                             let encoding: string = getEncoding(filePath);
                             let variables: any = JSON.parse(iconv.decode(fs.readFileSync(filePath), encoding));
@@ -560,6 +561,8 @@ async function run() {
                             let count: number = loadVariablesFromJson(variables, '', variableSeparator, fileVariables);
 
                             logger.info('  ' + count + ' variable(s) loaded.');
+                            logger.info('##[endgroup]');
+
                             ++variableFilesCount;
                         });
                     }
