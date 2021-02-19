@@ -66,14 +66,6 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
 - **Variable separator** (variableSeparator): the separtor to use in variable names for nested objects and arrays in variable files. Example: `{ 'My': { 'Value': ['Hello World!'] } }` will create a variable _My.Value.0_ with the value _Hello World!_.
 - **Send anonymous usage telemetry** (enableTelemetry): if checked anonymous usage data (hashed collection and pipeline id, no file parameter values, no variable values) will be sent to the task author only to analyze task usage.
 
-### Output variables
-The task creates the following as output variables:
-- **tokenReplacedCount**: the total number of tokens which were replaced by a variable.
-- **tokenFoundCount**: the total number of of tokens which were found.
-- **fileProcessedCount**: the total number of files which were processed.
-- **transformExecutedCount**: the total number of transformations which were executed.
-- **defaultValueCount**: the total number of default value used.
-
 ## Data/Telemetry
 The Replace Tokens task for Azure Pipelines collects anonymous usage data and sends them to its author to help improve the product. If you don’t wish to send usage data, you can change your telemetry settings through _Send anonymous usage telemetry_ parameter or by setting a variable or environment variable `REPLACE_TOKENS_DISABLE_TELEMETRY` to `true`.
 
@@ -88,6 +80,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 ## Release notes
 **New in 3.7.1**
 - Fix issue on binary files ([#193](https://github.com/qetza/vsts-replacetokens-task/issues/193)).
+- Rollback output variables ([#196](https://github.com/qetza/vsts-replacetokens-task/issues/196)).
 
 **New in 3.7.0**
 - Add output variables _tokenReplacedCount_, _tokenFoundCount_ and _fileProcessedCount_ ([#160](https://github.com/qetza/vsts-replacetokens-task/issues/160)).
