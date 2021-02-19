@@ -421,7 +421,16 @@ var replaceTokensInFile = function (
     mkdirSyncRecursive(path.dirname(path.resolve(outputPath)));
 
     // write file & log
-    fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
+    if (localCounter.Tokens)
+    {
+        // always write if tokens found
+        fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
+    }
+    else if (filePath !== outputPath)
+    {
+        // copy original file if output is different (not using copyFileSync to support node 6.x)
+        fs.writeFileSync(outputPath, fs.readFileSync(filePath));
+    }
 
     logger.info('  ' + localCounter.Replaced + ' token(s) replaced out of ' + localCounter.Tokens + (localCounter.DefaultValues ? ' (using ' + localCounter.DefaultValues + ' default value(s))' : '') + (options.enableTransforms ? ' and running ' + localCounter.Transforms + ' transformation(s)' : ''));
     logger.info('##[endgroup]');
