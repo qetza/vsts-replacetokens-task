@@ -86,6 +86,9 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 3.7.1**
+- Fix issue on binary files ([#193](https://github.com/qetza/vsts-replacetokens-task/issues/193)).
+
 **New in 3.7.0**
 - Add output variables _tokenReplacedCount_, _tokenFoundCount_ and _fileProcessedCount_ ([#160](https://github.com/qetza/vsts-replacetokens-task/issues/160)).
 - Add support for variable transformations with _Enable tranformations_ ([#96](https://github.com/qetza/vsts-replacetokens-task/issues/96)).
