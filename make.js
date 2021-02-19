@@ -27,7 +27,7 @@ var fs = require('fs');
 var semver = require('semver');
 
 // global paths
-var sourcePath = path.join(__dirname, 'task');
+var sourceRootPath = path.join(__dirname, 'ReplaceTokens');
 var binariesPath = path.join(__dirname, '_artifacts', 'binaries');
 var packagesPath = path.join(__dirname, '_artifacts', 'packages');
 
@@ -52,53 +52,7 @@ target.clean = function() {
 target.build = function() {
     target.clean();
 
-    // build task
-    console.log('build: building task');
-    var taskOutputPath = path.join(binariesPath, 'task');
-    shell.exec('tsc --outDir ' + taskOutputPath + ' --rootDir ' + sourcePath);
-    console.log('  task -> ' + taskOutputPath);
-
-    // copy external modules
-    console.log('build: copying externals modules');
-    getExternalModules(taskOutputPath);
-
-    console.log('  modules -> ' + path.join(taskOutputPath, 'node-modules'))
-
-    // copy resources
-    console.log('build: copying resources');
-    ['README.md', 'LICENSE.txt', 'vss-extension.json'].forEach(function(file) {
-        shell.cp('-Rf', path.join(__dirname, file), binariesPath);
-        console.log('  ' + file + ' -> ' + path.join(binariesPath, file));
-    });
-
-    shell.cp('-Rf', path.join(__dirname, 'task', '*.png'), taskOutputPath);
-    shell.cp('-Rf', path.join(__dirname, 'task', '*.json'), taskOutputPath);
-    console.log('  task -> ' + taskOutputPath);
-
-    var imagesPath = path.join(binariesPath, 'images')
-    shell.mkdir('-p', imagesPath);
-
-    shell.cp('-Rf', path.join(__dirname, 'images', '*.png'), imagesPath);
-    console.log('  images -> ' + imagesPath);
-
-    // versioning
-    console.log('build: versioning');
-    if (options.version) {
-        if (options.version === 'auto') {
-            var ref = new Date(2000, 1, 1);
-            var now = new Date();
-            var major = 4
-            var minor = Math.floor((now - ref) / 86400000);
-            var patch = Math.floor(Math.floor(now.getSeconds() + (60 * (now.getMinutes() + (60 * now.getHours())))) * 0.5)
-            options.version = major + '.' + minor + '.' + patch
-        }
-        
-        if (!semver.valid(options.version)) {
-            console.error('build', 'Invalid semver version: ' + options.version);
-            process.exit(1);
-        }
-    }
-    
+    // update options
     switch (options.stage) {
         case 'dev':
             options.taskId = '0664FF86-F509-4392-A33C-B2D9239B9AE5';
@@ -107,38 +61,112 @@ target.build = function() {
             break;
     }
 
-    updateExtensionManifest(options);
+    // build tasks
+    buildTask(3);
 
-    var taskVersion = updateTaskManifest(options);
-    updateTelemetryScript(options.iKey, taskVersion);
+    // copy extension resources
+    console.log('build: copying extension resources');
+
+    ['README.md', 'LICENSE.txt', 'vss-extension.json'].forEach(function(file) {
+        shell.cp('-Rf', path.join(__dirname, file), binariesPath);
+        console.log('  ' + file + ' -> ' + path.join(binariesPath, file));
+    });
+
+    var imagesPath = path.join(binariesPath, 'images')
+    shell.mkdir('-p', imagesPath);
+    shell.cp('-Rf', path.join(__dirname, 'images', '*.png'), imagesPath);
+    console.log('  images -> ' + imagesPath);
+
+    // versioning
+    var extensionOptions = {
+        version: options.version,
+        stage: options.stage,
+        taskId: options.taskId
+    };
+
+    if (extensionOptions.version) {
+        if (extensionOptions.version === 'auto') {
+            var ref = new Date(2000, 1, 1);
+            var now = new Date();
+            var major = 4
+            var minor = Math.floor((now - ref) / 86400000);
+            var patch = Math.floor(Math.floor(now.getSeconds() + (60 * (now.getMinutes() + (60 * now.getHours())))) * 0.5)
+            extensionOptions.version = major + '.' + minor + '.' + patch
+        }
+        
+        if (!semver.valid(extensionOptions.version)) {
+            console.error('build', 'Invalid semver version: ' + extensionOptions.version);
+            process.exit(1);
+        }
+    }
+
+    var extensionVersion = updateExtensionManifest(path.join(binariesPath, 'vss-extension.json'), extensionOptions);
+    console.log('  version -> ' + extensionVersion);
+}
+
+buildTask = function(majorVersion) {
+    // paths
+    var sourcePath = path.join(sourceRootPath, 'ReplaceTokensV' + majorVersion);
+    var outputPath = path.join(binariesPath, 'ReplaceTokens', 'ReplaceTokensV' + majorVersion);
+    var npmPath = shell.which('npm');
+
+    // restore modules
+    console.log('build: restoring modules v' + majorVersion);
+
+    shell.pushd('-q', sourcePath);
+    cp.execSync('"' + npmPath + '" install', { stdio: ['pipe', 'ignore', 'pipe'] });
+    shell.popd('-q');
+    console.log('  modules -> ' + path.join(sourcePath, 'node_modules'))
+
+    // build task
+    console.log('build: building task v' + majorVersion);
+
+    shell.exec('tsc --project ' + path.join(sourcePath, 'tsconfig.json') + ' --outDir ' + outputPath + ' --rootDir ' + sourcePath);
+    console.log('  task -> ' + outputPath);
+
+    shell.cp('-Rf', path.join(sourcePath, 'node_modules'), path.join(outputPath, 'node_modules'));
+    console.log('  modules -> ' + path.join(outputPath, 'node_modules'));
+
+    shell.cp('-Rf', path.join(sourcePath, '*.png'), outputPath);
+    shell.cp('-Rf', path.join(sourcePath, 'task.json'), outputPath);
+    console.log('  resources -> ' + outputPath);
+
+    // versioning
+    var taskOptions = {
+        version: options.version,
+        stage: options.stage,
+        taskId: options.taskId
+    };
+
+    if (taskOptions.version) {
+        if (taskOptions.version === 'auto') {
+            var ref = new Date(2000, 1, 1);
+            var now = new Date();
+            var major = majorVersion
+            var minor = Math.floor((now - ref) / 86400000);
+            var patch = Math.floor(Math.floor(now.getSeconds() + (60 * (now.getMinutes() + (60 * now.getHours())))) * 0.5)
+            taskOptions.version = major + '.' + minor + '.' + patch
+        }
+        
+        if (!semver.valid(taskOptions.version)) {
+            console.error('build', 'Invalid semver version: ' + taskOptions.version);
+            process.exit(1);
+        }
+    }
+
+    var taskVersion = updateTaskManifest(path.join(outputPath, 'task.json'), taskOptions);
+    updateTelemetryScript(path.join(outputPath, 'telemetry.js'), options.iKey, taskVersion);
 
     console.log('  version -> ' + taskVersion);
 }
 
-getExternalModules = function(dir) {
-    var pkg = require('./package.json');
-    delete pkg.devDependencies;
-
-    fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify(pkg, null, 4));
-
-    var npmPath = shell.which('npm');
-
-    shell.pushd('-q', dir);
-    cp.execSync('"' + npmPath + '" install', { stdio: ['pipe', 'ignore', 'pipe'] });
-    shell.popd('-q');
-
-    fs.unlinkSync(path.join(dir, 'package.json'));
-    fs.unlinkSync(path.join(dir, 'package-lock.json'));
-}
-
 target.package = function() {
-    console.log('package: packaging task');
+    console.log('package: packaging extension');
 
     shell.exec('tfx extension create --root "' + binariesPath + '" --output-path "' + packagesPath +'"')
 }
 
-updateExtensionManifest = function(options) {
-    var manifestPath = path.join(binariesPath, 'vss-extension.json')
+updateExtensionManifest = function(manifestPath, options) {
     var manifest = JSON.parse(fs.readFileSync(manifestPath));
     
     if (options.version) {
@@ -153,10 +181,11 @@ updateExtensionManifest = function(options) {
     manifest.public = options.public;
     
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 4));
+
+    return manifest.version;
 }
 
-updateTaskManifest = function(options) {
-    var manifestPath = path.join(binariesPath, 'task', 'task.json')
+updateTaskManifest = function(manifestPath, options) {
     var manifest = JSON.parse(fs.readFileSync(manifestPath));
     
     if (options.version) {
@@ -168,30 +197,29 @@ updateTaskManifest = function(options) {
     manifest.helpMarkDown = 'v' + manifest.version.Major + '.' + manifest.version.Minor + '.' + manifest.version.Patch + ' - ' + manifest.helpMarkDown;
     
     if (options.stage) {
-        manifest.friendlyName = manifest.friendlyName + ' (' + options.stage
+        manifest.friendlyName = manifest.friendlyName + ' (' + options.stage;
 
         if (options.version) {
-            manifest.friendlyName = manifest.friendlyName + ' ' + options.version
+            manifest.friendlyName = manifest.friendlyName + ' ' + options.version;
         }
 
         manifest.friendlyName = manifest.friendlyName + ')'
     }
     
     if (options.taskId) {
-        manifest.id = options.taskId
+        manifest.id = options.taskId;
     }
     
     fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 4));
 
-    return manifest.version.Major + '.' + manifest.version.Minor + '.' + manifest.version.Patch
+    return manifest.version.Major + '.' + manifest.version.Minor + '.' + manifest.version.Patch;
 }
 
-updateTelemetryScript = function(instrumentationKey, taskVersion) {
-    var scriptPath = path.join(binariesPath, 'task', 'telemetry.js');
+updateTelemetryScript = function(scriptPath, instrumentationKey, taskVersion) {
     var script = fs.readFileSync(scriptPath, { encoding: 'utf8' });
 
     if (instrumentationKey)
-    script = script.replace(/const\s+instrumentationKey\s*=\s*'[^']*'\s*;/, "const instrumentationKey = '" + instrumentationKey + "';")
+    script = script.replace(/const\s+instrumentationKey\s*=\s*'[^']*'\s*;/, "const instrumentationKey = '" + instrumentationKey + "';");
 
     if (taskVersion)
         script = script.replace(/const\s+version\s*=\s*'[^']*'\s*;/, "const version = '" + taskVersion + "';");

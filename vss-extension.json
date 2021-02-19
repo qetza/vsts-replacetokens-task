@@ -1,61 +1,75 @@
 {
-    "manifestVersion": 1,
-    "id": "replacetokens",
-    "name": "Replace Tokens",
-    "version": "3.7.1",
-    "public": true,
-    "publisher": "qetza",
-    "targets": [
-        { "id": "Microsoft.VisualStudio.Services" }
-    ],    
-    "description": "Task to replace tokens in files.",
-    "categories": [
-        "Build and release"
-    ],
-    "tags": [
-        "release",
-        "build",
-        "token",
-        "replace",
-        "variable",
-        "substitution"
-    ],
-    "links": {
-        "support": { "uri": "https://github.com/qetza/vsts-replacetokens-task/issues" }
+  "manifestVersion": 1,
+  "id": "replacetokens",
+  "name": "Replace Tokens",
+  "version": "3.7.1",
+  "public": true,
+  "publisher": "qetza",
+  "targets": [
+    {
+      "id": "Microsoft.VisualStudio.Services"
+    }
+  ],
+  "description": "Task to replace tokens in files.",
+  "categories": [
+    "Build and release"
+  ],
+  "tags": [
+    "release",
+    "build",
+    "token",
+    "replace",
+    "variable",
+    "substitution"
+  ],
+  "links": {
+    "support": {
+      "uri": "https://github.com/qetza/vsts-replacetokens-task/issues"
+    }
+  },
+  "icons": {
+    "default": "images/extension-icon.png"
+  },
+  "branding": {
+    "color": "#1C3272",
+    "theme": "dark"
+  },
+  "screenshots": [
+    {
+      "path": "images/screenshot-01.png"
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "uri": "https://github.com/qetza/vsts-replacetokens-task"
+  },
+  "content": {
+    "details": {
+      "path": "README.md"
     },
-    "icons": {
-        "default": "images/extension-icon.png"
+    "license": {
+      "path": "LICENSE.txt"
+    }
+  },
+  "files": [
+    {
+      "path": "ReplaceTokens"
     },
-    "branding": {
-        "color": "#1C3272",
-        "theme": "dark"
-    },
-    "screenshots": [
-        { "path": "images/screenshot-01.png" }
-    ],
-    "repository": {
-        "type": "git",
-        "uri": "https://github.com/qetza/vsts-replacetokens-task"
-    },
-    "content": {
-        "details": { "path": "README.md" },
-        "license": { "path": "LICENSE.txt" }
-    },
-    "files": [
-        { "path": "task" },
-        {
-            "path": "images",
-            "addressable": true
-        }
-    ],
-    "contributions": [
-        {
-            "id": "replacetokens-task",
-            "type": "ms.vss-distributed-task.task",
-            "targets": [
-                "ms.vss-distributed-task.tasks"
-            ],
-            "properties": { "name": "task" }
-        }
-    ]
+    {
+      "path": "images",
+      "addressable": true
+    }
+  ],
+  "contributions": [
+    {
+      "id": "replacetokens-task",
+      "type": "ms.vss-distributed-task.task",
+      "targets": [
+        "ms.vss-distributed-task.tasks"
+      ],
+      "properties": {
+        "name": "ReplaceTokens"
+      }
+    }
+  ]
 }
