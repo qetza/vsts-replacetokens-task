@@ -63,6 +63,7 @@ target.build = function() {
 
     // build tasks
     buildTask(3);
+    buildTask(4);
 
     // copy extension resources
     console.log('build: copying extension resources');
@@ -194,7 +195,7 @@ updateTaskManifest = function(manifestPath, options) {
         manifest.version.Patch = semver.patch(options.version);
     }
 
-    manifest.helpMarkDown = 'v' + manifest.version.Major + '.' + manifest.version.Minor + '.' + manifest.version.Patch + ' - ' + manifest.helpMarkDown;
+    manifest.helpMarkDown = manifest.helpMarkDown + ' (v' + manifest.version.Major + '.' + manifest.version.Minor + '.' + manifest.version.Patch + ')';
     
     if (options.stage) {
         manifest.friendlyName = manifest.friendlyName + ' (' + options.stage;
