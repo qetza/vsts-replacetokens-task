@@ -84,25 +84,32 @@ target.build = function() {
         stage: options.stage,
         taskId: options.taskId
     };
+    extensionOptions.version = computeVersion(extensionOptions.version, 4);
 
-    if (extensionOptions.version) {
-        if (extensionOptions.version === 'auto') {
+    var extensionVersion = updateExtensionManifest(path.join(binariesPath, 'vss-extension.json'), extensionOptions);
+    console.log('  version -> ' + extensionVersion);
+}
+
+var minor = null;
+var patch = null;
+computeVersion = function(version, majorVersion) {
+    if (version) {
+        if (version === 'auto') {
             var ref = new Date(2000, 1, 1);
             var now = new Date();
-            var major = 4
-            var minor = Math.floor((now - ref) / 86400000);
-            var patch = Math.floor(Math.floor(now.getSeconds() + (60 * (now.getMinutes() + (60 * now.getHours())))) * 0.5)
-            extensionOptions.version = major + '.' + minor + '.' + patch
+            var major = majorVersion
+            minor = minor || Math.floor((now - ref) / 86400000);
+            patch = patch || Math.floor(Math.floor(now.getSeconds() + (60 * (now.getMinutes() + (60 * now.getHours())))) * 0.5)
+            version = major + '.' + minor + '.' + patch
         }
         
-        if (!semver.valid(extensionOptions.version)) {
-            console.error('build', 'Invalid semver version: ' + extensionOptions.version);
+        if (!semver.valid(version)) {
+            console.error('build', 'Invalid semver version: ' + version);
             process.exit(1);
         }
     }
 
-    var extensionVersion = updateExtensionManifest(path.join(binariesPath, 'vss-extension.json'), extensionOptions);
-    console.log('  version -> ' + extensionVersion);
+    return version;
 }
 
 buildTask = function(majorVersion) {
@@ -138,22 +145,7 @@ buildTask = function(majorVersion) {
         stage: options.stage,
         taskId: options.taskId
     };
-
-    if (taskOptions.version) {
-        if (taskOptions.version === 'auto') {
-            var ref = new Date(2000, 1, 1);
-            var now = new Date();
-            var major = majorVersion
-            var minor = Math.floor((now - ref) / 86400000);
-            var patch = Math.floor(Math.floor(now.getSeconds() + (60 * (now.getMinutes() + (60 * now.getHours())))) * 0.5)
-            taskOptions.version = major + '.' + minor + '.' + patch
-        }
-        
-        if (!semver.valid(taskOptions.version)) {
-            console.error('build', 'Invalid semver version: ' + taskOptions.version);
-            process.exit(1);
-        }
-    }
+    taskOptions.version = computeVersion(taskOptions.version, majorVersion);
 
     var taskVersion = updateTaskManifest(path.join(outputPath, 'task.json'), taskOptions);
     updateTelemetryScript(path.join(outputPath, 'telemetry.js'), options.iKey, taskVersion);
