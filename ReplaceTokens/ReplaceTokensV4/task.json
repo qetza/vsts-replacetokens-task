@@ -3,7 +3,7 @@
     "name": "replacetokens",
     "friendlyName": "Replace Tokens",
     "description": "Replace tokens in files",
-    "helpMarkDown": "[Learn more about this task](https://github.com/qetza/vsts-replacetokens-task/blob/master/ReplaceTokens/ReplaceTokensV4/README.md)\n",
+    "helpMarkDown": "[Learn more about this task](https://github.com/qetza/vsts-replacetokens-task/blob/master/ReplaceTokens/ReplaceTokensV4/README.md)",
     "category": "Utility",
     "visibility": [
         "Build",
@@ -16,7 +16,7 @@
         "Patch": 0
     },
     "preview": true,
-    "releaseNotes": "Added output variables (breaking change).",
+    "releaseNotes": "Added output variables (breaking change).<br/>Added token pattern dropdown (breaking change).",
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
     "minimumAgentVersion": "2.105.0",
     "groups": [
@@ -65,6 +65,40 @@
                 "iso88591": "iso 8859-1"
             },
             "helpMarkDown": "Specify the files encoding.<br/>The 'auto' value will determine the encoding based on the Byte Order Mark (BOM) if present; otherwise it will use ascii."
+        },
+        {
+            "name": "tokenPattern",
+            "type": "pickList",
+            "label": "Token pattern",
+            "defaultValue": "default",
+            "required": true,
+            "options": {
+                "default": "#{ ... }#",
+                "rm": "__ ... __",
+                "octopus": "#{ ... }",
+                "azpipelines": "$( ... )",
+                "doublebraces": "{{ ... }}",
+                "custom": "custom"
+            },
+            "helpMarkDown": "Specify the token pattern. Use custom to specify your own prefix and suffix"
+        },
+        {
+            "name": "tokenPrefix",
+            "type": "string",
+            "label": "Token prefix",
+            "defaultValue": "#{",
+            "required": true,
+            "visibleRule": "tokenPattern == custom",
+            "helpMarkDown": "The prefix of the tokens to search in the target files."
+        },
+        {
+            "name": "tokenSuffix",
+            "type": "string",
+            "label": "Token suffix",
+            "defaultValue": "}#",
+            "required": true,
+            "visibleRule": "tokenPattern == custom",
+            "helpMarkDown": "The suffix of the tokens to search in the target files."
         },
         {
             "name": "writeBOM",
@@ -137,24 +171,6 @@
             "groupName": "missing",
             "required": true,
             "helpMarkDown": "If checked tokens with missing variables will not be replaced by empty string."
-        },
-        {
-            "name": "tokenPrefix",
-            "type": "string",
-            "label": "Token prefix",
-            "defaultValue": "#{",
-            "groupName": "advanced",
-            "required": true,
-            "helpMarkDown": "The prefix of the tokens to search in the target files."
-        },
-        {
-            "name": "tokenSuffix",
-            "type": "string",
-            "label": "Token suffix",
-            "defaultValue": "}#",
-            "groupName": "advanced",
-            "required": true,
-            "helpMarkDown": "The suffix of the tokens to search in the target files."
         },
         {
             "name": "useLegacyPattern",

@@ -483,6 +483,7 @@ async function run() {
     try {
         // load inputs
         let root: string = tl.getPathInput('rootDirectory', false, true);
+        let tokenPattern: string = tl.getInput('tokenPattern', true);
         let tokenPrefix: string = tl.getInput('tokenPrefix', true);
         let tokenSuffix: string = tl.getInput('tokenSuffix', true);
         let useLegacyPattern: boolean = tl.getBoolInput('useLegacyPattern', true);
@@ -584,6 +585,34 @@ async function run() {
         });
 
         // initialize task
+        switch (tokenPattern)
+        {
+            case 'default':
+                tokenPrefix = '#{';
+                tokenSuffix = '}#';
+                break;
+
+            case 'rm':
+                tokenPrefix = '__';
+                tokenSuffix = '__';
+                break;
+
+            case 'octopus':
+                tokenPrefix = '#{';
+                tokenSuffix = '}';
+                break;
+
+            case 'azpipelines':
+                tokenPrefix = '$(';
+                tokenSuffix = ')';
+                break;
+
+            case 'doublebraces':
+                tokenPrefix = '{{';
+                tokenSuffix = '}}';
+                break;
+        }
+
         let escapedTokenPrefix: string = tokenPrefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         let escapedTokenSuffix: string = tokenSuffix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
         let pattern = useLegacyPattern 
@@ -624,6 +653,7 @@ async function run() {
         telemetryEvent.transformSuffix = transformSuffix;
         telemetryEvent.transformPattern = transformPattern;
         telemetryEvent.defaultValue = options.defaultValue;
+        telemetryEvent.tokenPattern = tokenPattern;
 
         // process files
         rules.forEach(rule => {

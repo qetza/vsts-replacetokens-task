@@ -49,8 +49,9 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
   - _log warning_: the task will continue but log a warning with the missing variable name.
   - _fail_: the task will fail and log the missing variable name.
 - **Keep token** (keepToken): if checked tokens with missing variables will not be replaced by empty string.
-- **Token prefix** (tokenPrefix): the prefix of the tokens to search in the target files.
-- **Token suffix** (tokenSuffix): the suffix of the tokens to search in the target files.
+- **Token pattern** (tokenPattern): specify the pattern of the tokens to search in the target files.
+- **Token prefix** (tokenPrefix): when using `custom` token pattern, the prefix of the tokens to search in the target files.
+- **Token suffix** (tokenSuffix): when using `custom` token pattern, the suffix of the tokens to search in the target files.
 - **Use legacy pattern** (useLegacyPattern): if checked whitespaces between the token prefix/suffix and the variable name are not ignored.  
 - **Empty value** (emptyValue): the variable value that will be replaced with an empty string.
 - **Default value** (defaultValue): the value to be used if a variable is not found. Do not set to disable default value feature. (to replace with an empty string set the default value to the _Empty value_)
@@ -82,3 +83,8 @@ If you want to use tokens in XML based configuration files to be replaced during
 - at deployment time
   - inject your tokens in the configuration file by using your transformation file
   - replace tokens in your updated configuration file
+
+## Release notes
+**New in 4.0.0**
+- **Breaking change**: Add output variables ([#160](https://github.com/qetza/vsts-replacetokens-task/issues/160)). (some older version of TFS/Azure Pipelines doesn't support output variables when used in release pipelines)
+- **Breaking change**: Add dropdown parameter _Token pattern_ to select token pattern ([#131](https://github.com/qetza/vsts-replacetokens-task/issues/131)). (users with customized token pattern will need to manually select one or `custom`)
