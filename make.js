@@ -82,7 +82,8 @@ target.build = function() {
     var extensionOptions = {
         version: options.version,
         stage: options.stage,
-        taskId: options.taskId
+        taskId: options.taskId,
+        public: options.public
     };
     extensionOptions.version = computeVersion(extensionOptions.version, 4);
 
@@ -212,7 +213,7 @@ updateTelemetryScript = function(scriptPath, instrumentationKey, taskVersion) {
     var script = fs.readFileSync(scriptPath, { encoding: 'utf8' });
 
     if (instrumentationKey)
-    script = script.replace(/const\s+instrumentationKey\s*=\s*'[^']*'\s*;/, "const instrumentationKey = '" + instrumentationKey + "';");
+        script = script.replace(/const\s+instrumentationKey\s*=\s*'[^']*'\s*;/, "const instrumentationKey = '" + instrumentationKey + "';");
 
     if (taskVersion)
         script = script.replace(/const\s+version\s*=\s*'[^']*'\s*;/, "const version = '" + taskVersion + "';");
