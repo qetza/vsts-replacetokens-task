@@ -65,7 +65,7 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
 - **Send anonymous usage telemetry** (enableTelemetry): if checked anonymous usage data (hashed collection and pipeline id, no file parameter values, no variable values) will be sent to the task author only to analyze task usage.
 
 ## Data/Telemetry
-The Replace Tokens task for Azure Pipelines collects anonymous usage data and sends them to its author to help improve the product. If you don’t wish to send usage data, you can change your telemetry settings through _Send anonymous usage telemetry_ parameter or by setting a variable or environment variable `REPLACE_TOKENS_DISABLE_TELEMETRY` to `true`.
+The Replace Tokens task for Azure Pipelines collects anonymous usage data and sends them to its author to help improve the product. If you don’t wish to send usage data, you can change your telemetry settings through _Send anonymous usage telemetry_ parameter or by setting a variable or environment variable `REPLACETOKENS_DISABLE_TELEMETRY` to `true`.
 
 ## Tips
 If you want to use tokens in XML based configuration files to be replaced during deployment and also have those files usable for local development you can combine the [Replace Tokens task](https://marketplace.visualstudio.com/items?itemName=qetza.replacetokens) with the [XDT tranform task](https://marketplace.visualstudio.com/items?itemName=qetza.xdttransform):
