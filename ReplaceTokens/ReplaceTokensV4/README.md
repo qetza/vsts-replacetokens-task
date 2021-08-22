@@ -88,3 +88,4 @@ If you want to use tokens in XML based configuration files to be replaced during
 **New in 4.0.0**
 - **Breaking change**: Add output variables ([#160](https://github.com/qetza/vsts-replacetokens-task/issues/160)). (some older version of TFS/Azure Pipelines doesn't support output variables when used in release pipelines)
 - **Breaking change**: Add dropdown parameter _Token pattern_ to select token pattern ([#131](https://github.com/qetza/vsts-replacetokens-task/issues/131)). (users with customized token pattern will need to manually select one or `custom`)
+- Add `base64` transform ([#163](https://github.com/qetza/vsts-replacetokens-task/issues/163)).

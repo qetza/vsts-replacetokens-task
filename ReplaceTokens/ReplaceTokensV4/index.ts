@@ -334,6 +334,10 @@ var replaceTokensInFile = function (
                         // nothing done here, disable escaping later
                         break;
                     
+                    case 'base64':
+                        value = Buffer.from(value).toString('base64');
+                        break;
+
                     default:
                         --localCounter.Transforms;
                         logger.warn('  unknown transform: ' + transformName);

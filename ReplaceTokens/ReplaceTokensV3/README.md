@@ -76,6 +76,9 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 3.8.0**
+- Add `base64` transform ([#163](https://github.com/qetza/vsts-replacetokens-task/issues/163)).
+
 **New in 3.7.1**
 - Fix issue on binary files ([#193](https://github.com/qetza/vsts-replacetokens-task/issues/193)).
 - Rollback output variables ([#196](https://github.com/qetza/vsts-replacetokens-task/issues/196)).

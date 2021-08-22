@@ -15,7 +15,6 @@
         "Minor": 0,
         "Patch": 0
     },
-    "preview": true,
     "releaseNotes": "Added output variables (breaking change).<br/>Added token pattern dropdown (breaking change).",
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
     "minimumAgentVersion": "2.105.0",
