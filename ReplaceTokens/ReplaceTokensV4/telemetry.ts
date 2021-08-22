@@ -70,7 +70,8 @@ export default function trackEvent(event: TelemetryEvent, proxyUrl?: string): st
                         transformExecuted: event.transformExecuted,
                         defaultValue: event.defaultValue,
                         defaultValueReplaced: event.defaultValueReplaced,
-                        tokenPattern: event.tokenPattern
+                        tokenPattern: event.tokenPattern,
+                        actionOnNoFiles: event.actionOnNoFiles
                     }
                 }
             }
@@ -174,4 +175,5 @@ export interface TelemetryEvent {
   defaultValue: string;
   defaultValueReplaced: number;
   tokenPattern: string;
+  actionOnNoFiles: string;
 }
