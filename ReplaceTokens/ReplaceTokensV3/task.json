@@ -19,9 +19,19 @@
     "minimumAgentVersion": "2.105.0",
     "groups": [
         {
-            "name": "missing",
-            "displayName": "Missing variables",
+            "name": "validations",
+            "displayName": "Validations",
             "isExpanded": true
+        },
+        {
+            "name": "transforms",
+            "displayName": "Transformations",
+            "isExpanded": false
+        },
+        {
+            "name": "variables",
+            "displayName": "Variables",
+            "isExpanded": false
         },
         {
             "name": "advanced",
@@ -116,9 +126,9 @@
         {
             "name": "actionOnMissing",
             "type": "pickList",
-            "label": "Action",
+            "label": "Action on missing variable",
             "defaultValue": "warn",
-            "groupName": "missing",
+            "groupName": "validations",
             "required": true,
             "options": {
                 "continue": "silently continue",
@@ -130,11 +140,72 @@
         {
             "name": "keepToken",
             "type": "boolean",
-            "label": "Keep token",
+            "label": "Keep token for missing variable",
             "defaultValue": "false",
-            "groupName": "missing",
+            "groupName": "validations",
             "required": true,
             "helpMarkDown": "If checked tokens with missing variables will not be replaced by empty string."
+        },
+        {
+            "name": "actionOnNoFiles",
+            "type": "pickList",
+            "label": "Action on no file found",
+            "defaultValue": "continue",
+            "groupName": "validations",
+            "required": true,
+            "options": {
+                "continue": "silently continue",
+                "warn": "log warning",
+                "fail": "fail" 
+            },
+            "helpMarkDown": "Specify the action when no file was found."
+        },
+        {
+            "name": "enableTransforms",
+            "type": "boolean",
+            "label": "Enable transformations",
+            "defaultValue": "false",
+            "groupName": "transforms",
+            "required": true,
+            "helpMarkDown": "If checked transformations can be applied on variable values.<br/>Syntax: {token prefix}{transformation name}{transform prefix}{token}{transform suffix}{token suffix}<br/>Example: #{lower(MyVar)}#"
+        },
+        {
+            "name": "transformPrefix",
+            "type": "string",
+            "label": "Transform prefix",
+            "defaultValue": "(",
+            "groupName": "transforms",
+            "required": true,
+            "helpMarkDown": "The prefix between transform name and token name.",
+            "visibleRule": "enableTransforms == true"
+        },
+        {
+            "name": "transformSuffix",
+            "type": "string",
+            "label": "Transform suffix",
+            "defaultValue": ")",
+            "groupName": "transforms",
+            "required": true,
+            "helpMarkDown": "The suffix after the token name.",
+            "visibleRule": "enableTransforms == true"
+        },
+        {
+            "name": "variableFiles",
+            "type": "multiLine",
+            "label": "Files (JSON or YAML)",
+            "defaultValue": "",
+            "groupName": "variables",
+            "required": false,
+            "helpMarkDown": "Absolute or relative comma or newline-separated paths to the files containing additional variables (wildcards can be used). YAML files must have the .yml or .yaml extension otherwise the file is treated as JSON."
+        },
+        {
+            "name": "variableSeparator",
+            "type": "string",
+            "label": "Separator",
+            "defaultValue": ".",
+            "groupName": "variables",
+            "required": false,
+            "helpMarkDown": "The separtor to use in variable names for nested objects in variable files.<br/>Example: {'My':{'Value':'Hello World!'}} will create a variable 'My.Value' with the value 'Hello World!'"
         },
         {
             "name": "tokenPrefix",
@@ -180,54 +251,6 @@
             "groupName": "advanced",
             "required": false,
             "helpMarkDown": "The value to be used if a variable is not found. Do not set to disable default value feature."
-        },
-        {
-            "name": "enableTransforms",
-            "type": "boolean",
-            "label": "Enable transformations",
-            "defaultValue": "false",
-            "groupName": "advanced",
-            "required": true,
-            "helpMarkDown": "If checked transformations can be applied on variable values.<br/>Syntax: {token prefix}{transformation name}{transform prefix}{token}{transform suffix}{token suffix}<br/>Example: #{lower(MyVar)}#"
-        },
-        {
-            "name": "transformPrefix",
-            "type": "string",
-            "label": "Transform prefix",
-            "defaultValue": "(",
-            "groupName": "advanced",
-            "required": true,
-            "helpMarkDown": "The prefix between transform name and token name.",
-            "visibleRule": "enableTransforms == true"
-        },
-        {
-            "name": "transformSuffix",
-            "type": "string",
-            "label": "Transform suffix",
-            "defaultValue": ")",
-            "groupName": "advanced",
-            "required": true,
-            "helpMarkDown": "The suffix after the token name.",
-            "visibleRule": "enableTransforms == true"
-        },
-        {
-            "name": "variableFiles",
-            "type": "multiLine",
-            "label": "Variable files (JSON or YAML)",
-            "defaultValue": "",
-            "groupName": "advanced",
-            "required": false,
-            "helpMarkDown": "Absolute or relative comma or newline-separated paths to the files containing additional variables (wildcards can be used). YAML files must have the .yml or .yaml extension otherwise the file is treated as JSON."
-        },
-        {
-            "name": "variableSeparator",
-            "type": "string",
-            "label": "Variable separator",
-            "defaultValue": ".",
-            "groupName": "advanced",
-            "required": false,
-            "visibleRule": "variableFiles != \"\"",
-            "helpMarkDown": "The separtor to use in variable names for nested objects in variable files.<br/>Example: {'My':{'Value':'Hello World!'}} will create a variable 'My.Value' with the value 'Hello World!'"
         },
         {
             "name": "enableTelemetry",

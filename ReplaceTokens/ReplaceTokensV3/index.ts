@@ -337,7 +337,7 @@ var replaceTokensInFile = function (
                     case 'base64':
                         value = Buffer.from(value).toString('base64');
                         break;
-                    
+
                     default:
                         --localCounter.Transforms;
                         logger.warn('  unknown transform: ' + transformName);
@@ -505,6 +505,7 @@ async function run() {
         };
         let transformPrefix: string = tl.getInput('transformPrefix', true);
         let transformSuffix: string = tl.getInput('transformSuffix', true);
+        let actionOnNoFiles: string = tl.getInput('actionOnNoFiles', true);
 
         logger = new Logger(mapLogLevel(options.verbosity));
 
@@ -628,6 +629,7 @@ async function run() {
         telemetryEvent.transformSuffix = transformSuffix;
         telemetryEvent.transformPattern = transformPattern;
         telemetryEvent.defaultValue = options.defaultValue;
+        telemetryEvent.actionOnNoFiles = actionOnNoFiles;
 
         // process files
         rules.forEach(rule => {
@@ -668,7 +670,19 @@ async function run() {
 
         // display summary
         let duration = (+new Date() - (+startTime)) / 1000;
-        logger.info('replaced ' + globalCounters.Replaced + ' tokens out of ' + globalCounters.Tokens + (globalCounters.DefaultValues ? ' (using ' + globalCounters.DefaultValues + ' default value(s))' : '') + (options.enableTransforms ? ' and running ' + globalCounters.Transforms + ' functions' : '') + ' in ' + globalCounters.Files + ' file(s) in ' + duration + ' seconds.');
+
+        if (globalCounters.Files === 0 && actionOnNoFiles === ACTION_WARN)
+        {
+            logger.warn('found no files to process.');
+        }
+        else if (globalCounters.Files === 0 && actionOnNoFiles === ACTION_FAIL)
+        {
+            logger.error('found no files to process.');
+        }
+        else
+        {
+            logger.info('replaced ' + globalCounters.Replaced + ' tokens out of ' + globalCounters.Tokens + (globalCounters.DefaultValues ? ' (using ' + globalCounters.DefaultValues + ' default value(s))' : '') + (options.enableTransforms ? ' and running ' + globalCounters.Transforms + ' functions' : '') + ' in ' + globalCounters.Files + ' file(s) in ' + duration + ' seconds.');
+        }
 
         telemetryEvent.duration = duration;
         telemetryEvent.tokenReplaced = globalCounters.Replaced;
