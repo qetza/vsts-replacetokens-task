@@ -46,11 +46,12 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
 - **Escape character** (escapeChar): when using `custom` escape type, the escape character to use when escaping characters in the variable values.
 - **Characters to escape** (charsToEscape): when using `custom` escape type, characters in variable values to escape before replacing tokens.
 - **Verbosity** (verbosity): specify the level of log verbosity. (note: error and system debug are always on)
-- **Action** (actionOnMissing): specify the action to take on a missing variable.
+- **Action on missing variable** (actionOnMissing): specify the action to take on a missing variable.
   - _silently continue_: the task will continue without displaying any message.
   - _log warning_: the task will continue but log a warning with the missing variable name.
   - _fail_: the task will fail and log the missing variable name.
-- **Keep token** (keepToken): if checked tokens with missing variables will not be replaced by empty string.
+- **Keep token for missing variable** (keepToken): if checked tokens with missing variables will not be replaced by empty string.
+- **Action on no file processed** (actionOnNoFiles):  specify the action when no file was processed.
 - **Token pattern** (tokenPattern): specify the pattern of the tokens to search in the target files.
 - **Token prefix** (tokenPrefix): when using `custom` token pattern, the prefix of the tokens to search in the target files.
 - **Token suffix** (tokenSuffix): when using `custom` token pattern, the suffix of the tokens to search in the target files.
@@ -87,6 +88,15 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 4.1.0**
+- Task **4.0.1**
+  - Promoted to release.
+  - Add `base64` transform ([#163](https://github.com/qetza/vsts-replacetokens-task/issues/163)).
+  - Add action on no file processed ([#210](https://github.com/qetza/vsts-replacetokens-task/issues/210)).
+- Task **3.8.0**
+  - Add `base64` transform ([#163](https://github.com/qetza/vsts-replacetokens-task/issues/163)).
+  - Add action on no file processed ([#210](https://github.com/qetza/vsts-replacetokens-task/issues/210)).
+
 **New in 4.0.0**
 - Add support for multiple task versions.
 - Add task 4.x (preview)
