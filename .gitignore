@@ -5,3 +5,4 @@ typings/*
 !typings/customs/
 task/*.js
 .taskkey
+.local/

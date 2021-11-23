@@ -12,7 +12,7 @@
     "author": "Guillaume Rouchon",
     "version": {
         "Major": 3,
-        "Minor": 8,
+        "Minor": 9,
         "Patch": 0
     },
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
@@ -263,7 +263,7 @@
         }
     ],
     "execution": {
-        "Node": {
+        "Node10": {
             "target": "index.js"
         }
     }
