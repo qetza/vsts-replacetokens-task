@@ -1,7 +1,7 @@
 [![Donate](images/donate.png)](https://www.paypal.me/grouchon/5)
 
 # Replace Tokens task
-Azure Pipelines extension that replace tokens in files with variable values.
+Azure Pipelines extension that replace tokens in **text** files with variable values.
 
 ## Usage
 If you are using the UI, add a new task, select **Replace Tokens** from the **Utility** category and configure it as needed:
@@ -17,6 +17,8 @@ If your are using a YAML file, add a task with the following syntax:
       **/*.config
       **/*.json => outputs/*.json
 ```
+
+**Note:** the task will only work on text files, if you need to replace token in archive file you will need to first extract the files and after archive them back.
 
 ### Parameters
 The parameters of the task are described bellow, in parenthesis is the YAML name:
