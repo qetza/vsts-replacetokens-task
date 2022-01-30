@@ -38,19 +38,19 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
 > If you want to use negative pattern in target file, use a semi-colon `;` to separate the including pattern and the negative patterns. When using output syntax, only the wildcard in the first pattern will be used for generating the output path.
 > - `**\*.tokenized.config;!**\dev\*.config => c:\tmp\*.config` will replace tokens in all _{filename}.tokenized.config_ target files except those under a _dev_ directory and save the result in _c:\tmp\\{filename}.config_.
 
-- **Files encoding** (encoding): the files encoding used for reading and writing. The 'auto' value will determine the encoding based on the Byte Order Mark (BOM) if present; otherwise it will use ascii.
+- **Files encoding** (encoding): the files encoding used for reading and writing. The 'auto' value will determine the encoding based on the Byte Order Mark (BOM) if present; otherwise it will use ascii. (allowed values: auto, ascii, utf-7, utf-8, utf-16le, utf-16be, win1252 and iso88591)
 - **Write unicode BOM** (writeBOM): if checked writes an unicode Byte Order Mark (BOM).
-- **Escape type** (escapeType): specify how to escape variable values. Value `auto` uses the file extension (`.json` and `.xml`) to determine the escaping and `none` as fallback.
+- **Escape type** (escapeType): specify how to escape variable values. Value `auto` uses the file extension (`.json` and `.xml`) to determine the escaping and `none` as fallback. (allowed values: auto, none, json, xml and custom)
 - **Escape character** (escapeChar): when using `custom` escape type, the escape character to use when escaping characters in the variable values.
 - **Characters to escape** (charsToEscape): when using `custom` escape type, characters in variable values to escape before replacing tokens.
-- **Verbosity** (verbosity): specify the level of log verbosity. (note: error and system debug are always on)
+- **Verbosity** (verbosity): specify the level of log verbosity. (note: error and system debug are always on) (allowed values: normal, detailed and off)
 - **Action on missing variable** (actionOnMissing): specify the action to take on a missing variable.
-  - _silently continue_: the task will continue without displaying any message.
-  - _log warning_: the task will continue but log a warning with the missing variable name.
-  - _fail_: the task will fail and log the missing variable name.
+  - _silently continue_ (continue): the task will continue without displaying any message.
+  - _log warning_ (warn): the task will continue but log a warning with the missing variable name.
+  - _fail_ (fail): the task will fail and log the missing variable name.
 - **Keep token for missing variable** (keepToken): if checked tokens with missing variables will not be replaced by empty string.
-- **Action on no file processed** (actionOnNoFiles):  specify the action when no file was processed.
-- **Token pattern** (tokenPattern): specify the pattern of the tokens to search in the target files.
+- **Action on no file processed** (actionOnNoFiles):  specify the action when no file was processed. (allowed values: continue, warn, fail)
+- **Token pattern** (tokenPattern): specify the pattern of the tokens to search in the target files. (allowed values: default, rm, octopus, azpipelines, doublebraces and custom)
 - **Token prefix** (tokenPrefix): when using `custom` token pattern, the prefix of the tokens to search in the target files.
 - **Token suffix** (tokenSuffix): when using `custom` token pattern, the suffix of the tokens to search in the target files.
 - **Use legacy pattern** (useLegacyPattern): if checked whitespaces between the token prefix/suffix and the variable name are not ignored.  
@@ -60,6 +60,7 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
   - _lower_: make variable value lower case. Example: `#{lower(MyVar)}#`
   - _upper_: make variable value upper case. Example: `#{upper(MyVar)}#`
   - _noescape_: disable variable value escaping. (this can be used if you want to inject raw JSON or XML for example). Example: `#{noescape(MyVar)}#`
+  - _base64_: encode variable value in BASE64. Example `#{base64(MyVar)}#`
 - **Transform prefix** (transformPrefix): The prefix between transform name and token name. Default: `(`.
 - **Transform suffix** (transformSuffix): The suffix after the token name. Default: `)`.
 - **Variable files (JSON or YAML)** (variableFiles): the absolute or relative comma or newline-separated paths to the files containing additional variables. Wildcards can be used (eg: `vars\**\*.json` for all _.json_ files in all sub folders of _vars_). YAML files **must have** the `.yml`or `.yaml` extension otherwise the file is treated as JSON. Variables declared in files overrides variables defined in the pipeline.
