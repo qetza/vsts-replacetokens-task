@@ -17,7 +17,7 @@
     },
     "releaseNotes": "Migrate to Node10 handler (breaking change).",
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
-    "minimumAgentVersion": "2.105.0",
+    "minimumAgentVersion": "2.144.0",
     "groups": [
         {
             "name": "validations",
@@ -302,7 +302,7 @@
         }
     ],
     "execution": {
-        "Node": {
+        "Node10": {
             "target": "index.js"
         }
     }
