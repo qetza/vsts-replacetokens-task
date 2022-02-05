@@ -64,6 +64,7 @@ target.build = function() {
     // build tasks
     buildTask(3);
     buildTask(4);
+    buildTask(5);
 
     // copy extension resources
     console.log('build: copying extension resources');
