@@ -91,6 +91,14 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 4.4.0**
+- Task **5.1.0**
+  - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
+- Task **4.2.0**
+  - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
+- Task **3.10.0**
+  - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
+
 **New in 4.3.0**
 - Add task **5.0.0**
   - **Breaking change**: Migrate task to Node10 execution handler needing agent `2.144.0` minimum ([#228](https://github.com/qetza/vsts-replacetokens-task/issues/228), [#230](https://github.com/qetza/vsts-replacetokens-task/issues/230)).

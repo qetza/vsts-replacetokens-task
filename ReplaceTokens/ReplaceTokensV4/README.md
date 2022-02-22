@@ -89,6 +89,9 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 4.2.0**
+- Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
+
 **New in 4.1.1**
 - Revert migrate tasks to Node10 execution handler ([#233](https://github.com/qetza/vsts-replacetokens-task/issues/233)).
 
