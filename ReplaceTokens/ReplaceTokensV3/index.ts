@@ -129,7 +129,7 @@ class Counter {
 
 var logger: ILogger = new NullLogger();
 var globalCounters: Counter = new Counter();
-var fileVariables: {[name: string]: string} = {};
+var externalVariables: {[name: string]: string} = {};
 
 var mapEncoding = function (encoding: string): string {
     switch (encoding)
@@ -277,8 +277,8 @@ var replaceTokensInFile = function (
 
         // replace value
         let value: string = tl.getVariable(name);
-        if (name in fileVariables)
-            value = fileVariables[name];
+        if (name in externalVariables)
+            value = externalVariables[name];
 
         let usedDefaultValue: boolean = false;
         if (!value && options.defaultValue)
@@ -577,7 +577,7 @@ async function run() {
                                 ? yaml.load(content)
                                 : JSON.parse(content);
 
-                            let count: number = loadVariablesFromJson(variables, '', variableSeparator, fileVariables);
+                            let count: number = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
 
                             logger.info('  ' + count + ' variable(s) loaded.');
                             logger.info('##[endgroup]');
@@ -587,6 +587,20 @@ async function run() {
                     }
                 });
         });
+
+        let inlineVariablesCount: number = 0;
+        let inlineVariables: string = tl.getInput('inlineVariables', false);
+
+        if (inlineVariables)
+        {
+            logger.info('##[group]loading inline variables:');
+
+            let variables: any = yaml.load(inlineVariables);
+            inlineVariablesCount = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
+
+            logger.info('  ' + inlineVariablesCount + ' variable(s) loaded.');
+            logger.info('##[endgroup]');
+        }
 
         // initialize task
         let escapedTokenPrefix: string = tokenPrefix.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
@@ -630,6 +644,7 @@ async function run() {
         telemetryEvent.transformPattern = transformPattern;
         telemetryEvent.defaultValue = options.defaultValue;
         telemetryEvent.actionOnNoFiles = actionOnNoFiles;
+        telemetryEvent.inlineVariables = inlineVariablesCount;
 
         // process files
         rules.forEach(rule => {

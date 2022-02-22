@@ -234,13 +234,22 @@
             "helpMarkDown": "Absolute or relative comma or newline-separated paths to the files containing additional variables (wildcards can be used). YAML files must have the .yml or .yaml extension otherwise the file is treated as JSON."
         },
         {
+            "name": "inlineVariables",
+            "type": "multiLine",
+            "label": "Inline variables (YAML syntax)",
+            "defaultValue": "",
+            "groupName": "variables",
+            "required": false,
+            "helpMarkDown": "A YAML formatted string containing inline variables."
+        },
+        {
             "name": "variableSeparator",
             "type": "string",
             "label": "Separator",
             "defaultValue": ".",
             "groupName": "variables",
             "required": false,
-            "helpMarkDown": "The separtor to use in variable names for nested objects in variable files.<br/>Example: {'My':{'Value':'Hello World!'}} will create a variable 'My.Value' with the value 'Hello World!'"
+            "helpMarkDown": "The separtor to use in variable names for nested objects in inline variables or variable files.<br/>Example: {'My':{'Value':'Hello World!'}} will create a variable 'My.Value' with the value 'Hello World!'"
         },
         {
             "name": "useLegacyPattern",

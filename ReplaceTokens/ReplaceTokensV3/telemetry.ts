@@ -60,7 +60,7 @@ export default function trackEvent(event: TelemetryEvent, proxyUrl?: string): st
                         rulesWithNegativePattern: event.rulesWithNegativePattern,
                         duration: event.duration,
                         tokenReplaced: event.tokenReplaced,
-                        tokenFound: event.tokenFound,                        
+                        tokenFound: event.tokenFound,
                         fileProcessed: event.fileProcessed,
                         useLegacyPattern: event.useLegacyPattern,
                         enableTransforms: event.enableTransforms,
@@ -70,7 +70,8 @@ export default function trackEvent(event: TelemetryEvent, proxyUrl?: string): st
                         transformExecuted: event.transformExecuted,
                         defaultValue: event.defaultValue,
                         defaultValueReplaced: event.defaultValueReplaced,
-                        actionOnNoFiles: event.actionOnNoFiles
+                        actionOnNoFiles: event.actionOnNoFiles,
+                        inlineVariables: event.inlineVariables
                     }
                 }
             }
@@ -174,4 +175,5 @@ export interface TelemetryEvent {
   defaultValue: string;
   defaultValueReplaced: number;
   actionOnNoFiles: string;
+  inlineVariables: number;
 }

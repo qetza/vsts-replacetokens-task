@@ -1,4 +1,4 @@
-[![Donate](images/donate.png)](https://www.paypal.me/grouchon/5)
+[![Donate](images/donate.png)](https://www.paypal.me/qetza/5)
 
 # Replace Tokens task
 Azure Pipelines extension that replace tokens in **text** files with variable values.
@@ -65,7 +65,8 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
 - **Transform prefix** (transformPrefix): The prefix between transform name and token name. Default: `(`.
 - **Transform suffix** (transformSuffix): The suffix after the token name. Default: `)`.
 - **Variable files (JSON or YAML)** (variableFiles): the absolute or relative comma or newline-separated paths to the files containing additional variables. Wildcards can be used (eg: `vars\**\*.json` for all _.json_ files in all sub folders of _vars_). YAML files **must have** the `.yml`or `.yaml` extension otherwise the file is treated as JSON. Variables declared in files overrides variables defined in the pipeline.
-- **Variable separator** (variableSeparator): the separtor to use in variable names for nested objects and arrays in variable files. Example: `{ 'My': { 'Value': ['Hello World!'] } }` will create a variable _My.Value.0_ with the value _Hello World!_.
+- **Inline variables (YAML syntax)** (inlineVariables): A YAML formatted string containing inline variables. Variables declared inline overrides variables defined in the pipeline and in files.
+- **Variable separator** (variableSeparator): the separtor to use in variable names for nested objects and arrays in inline variables or variable files. Example: `{ 'My': { 'Value': ['Hello World!'] } }` will create a variable _My.Value.0_ with the value _Hello World!_.
 - **Send anonymous usage telemetry** (enableTelemetry): if checked anonymous usage data (hashed collection and pipeline id, no file parameter values, no variable values) will be sent to the task author only to analyze task usage.
 
 ## Data/Telemetry

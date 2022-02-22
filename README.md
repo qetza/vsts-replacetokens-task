@@ -1,4 +1,4 @@
-[![Donate](images/donate.png)](https://www.paypal.me/grouchon/5)
+[![Donate](images/donate.png)](https://www.paypal.me/qetza/5)
 
 # Replace Tokens task
 Azure Pipelines extension that replace tokens in **text** files with variable values.
