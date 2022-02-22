@@ -72,7 +72,8 @@ export default function trackEvent(event: TelemetryEvent, proxyUrl?: string): st
                         defaultValueReplaced: event.defaultValueReplaced,
                         tokenPattern: event.tokenPattern,
                         actionOnNoFiles: event.actionOnNoFiles,
-                        inlineVariables: event.inlineVariables
+                        inlineVariables: event.inlineVariables,
+                        enableRecursion: event.enableRecursion
                     }
                 }
             }
@@ -178,4 +179,5 @@ export interface TelemetryEvent {
   tokenPattern: string;
   actionOnNoFiles: string;
   inlineVariables: number;
+  enableRecursion: boolean;
 }
