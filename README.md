@@ -94,6 +94,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 **New in 4.4.0**
 - Task **5.1.0**
   - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
+  - Add support for recursive token replacement in values ([#201](https://github.com/qetza/vsts-replacetokens-task/issues/201)).
 - Task **4.2.0**
   - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
 - Task **3.10.0**
