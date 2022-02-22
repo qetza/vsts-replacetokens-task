@@ -67,6 +67,7 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
 - **Variable files (JSON or YAML)** (variableFiles): the absolute or relative comma or newline-separated paths to the files containing additional variables. Wildcards can be used (eg: `vars\**\*.json` for all _.json_ files in all sub folders of _vars_). YAML files **must have** the `.yml`or `.yaml` extension otherwise the file is treated as JSON. Variables declared in files overrides variables defined in the pipeline.
 - **Inline variables (YAML syntax)** (inlineVariables): A YAML formatted string containing inline variables. Variables declared inline overrides variables defined in the pipeline and in files.
 - **Variable separator** (variableSeparator): the separtor to use in variable names for nested objects and arrays in inline variables or variable files. Example: `{ 'My': { 'Value': ['Hello World!'] } }` will create a variable _My.Value.0_ with the value _Hello World!_.
+- **Enable recursion in values** (enableRecursion): if checked token replacement (with transformation) will be run on values.Example: "Say: #{value1}#" with value1 = "hello #{upper(value2)}#" and value2 = "world!" will result in "hello WORLD!".
 - **Send anonymous usage telemetry** (enableTelemetry): if checked anonymous usage data (hashed collection and pipeline id, no file parameter values, no variable values) will be sent to the task author only to analyze task usage.
 
 ## Data/Telemetry
@@ -83,6 +84,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 ## Release notes
 **New in 3.10.0**
 - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
+- Add support for recursive token replacement in values ([#201](https://github.com/qetza/vsts-replacetokens-task/issues/201)).
 
 **New in 3.9.1**
 - Revert migrate tasks to Node10 execution handler ([#233](https://github.com/qetza/vsts-replacetokens-task/issues/233)).

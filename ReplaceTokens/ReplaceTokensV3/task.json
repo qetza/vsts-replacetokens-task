@@ -235,6 +235,15 @@
             "helpMarkDown": "The suffix of the tokens to search in the target files."
         },
         {
+            "name": "enableRecursion",
+            "type": "boolean",
+            "label": "Enable recursion in values",
+            "defaultValue": "false",
+            "groupName": "advanced",
+            "required": true,
+            "helpMarkDown": "If checked token replacement (with transformation) will be run on values.<br/>Example: \"Say: #{value1}#\" with value1 = \"hello #{upper(value2)}#\" and value2 = \"world!\" will result in \"hello WORLD!\"."
+        },
+        {
             "name": "useLegacyPattern",
             "type": "boolean",
             "label": "Use legacy pattern",

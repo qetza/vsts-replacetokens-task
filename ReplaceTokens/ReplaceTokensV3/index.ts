@@ -37,7 +37,8 @@ interface Options {
     readonly charsToEscape: string,
     readonly verbosity: string,
     readonly defaultValue: string,
-    readonly enableTransforms: boolean
+    readonly enableTransforms: boolean,
+    readonly enableRecursion: boolean
 }
 
 interface Rule {
@@ -236,30 +237,18 @@ var loadVariablesFromJson = function(
     return count;
 }
 
-var replaceTokensInFile = function (
-    filePath: string, 
-    outputPath: string,
-    regex: RegExp, 
+var replaceTokensInString = function (
+    content: string,
+    regex: RegExp,
     transformRegex: RegExp,
-    options: Options): void {
-    logger.info('##[group]replacing tokens in: ' + filePath);
+    options: Options,
+    enableEscape: boolean,
+    escapeType: string,
+    counter: Counter,
+    names: string[] = []): string {
 
-    if (filePath !== outputPath)
-        logger.info('  output in: ' + outputPath);
-
-    // ensure encoding
-    let encoding: string = options.encoding;
-    if (options.encoding === ENCODING_AUTO)
-        encoding = getEncoding(filePath);
-
-    logger.debug('  using encoding: ' + encoding);
-
-    // read file and replace tokens
-    let localCounter: Counter = new Counter();
-
-    let content: string = iconv.decode(fs.readFileSync(filePath), encoding);
     content = content.replace(regex, (match, name) => {
-        ++localCounter.Tokens;
+        ++counter.Tokens;
 
         // extract transformation
         let transformName: string = null;
@@ -268,12 +257,16 @@ var replaceTokensInFile = function (
             let m = name.match(transformRegex);
             if (m)
             {
-                ++localCounter.Transforms;
+                ++counter.Transforms;
 
                 transformName = m[1];
                 name = m[2];
             }
         }
+
+        // check cycle on recursion
+        if (options.enableRecursion && names.indexOf(name) >= 0)
+            throw new Error("recursion cycle with token '" + name + "'.");
 
         // replace value
         let value: string = tl.getVariable(name);
@@ -283,7 +276,7 @@ var replaceTokensInFile = function (
         let usedDefaultValue: boolean = false;
         if (!value && options.defaultValue)
         {
-            ++localCounter.DefaultValues;
+            ++counter.DefaultValues;
 
             value = options.defaultValue;
             usedDefaultValue = true;
@@ -293,7 +286,7 @@ var replaceTokensInFile = function (
         {
             if (options.keepToken)
                 value = match;
-            else                 
+            else
                 value = '';
 
             let message: string = '  variable not found: ' + name;
@@ -313,10 +306,14 @@ var replaceTokensInFile = function (
         }
         else
         {
-            ++localCounter.Replaced;
+            ++counter.Replaced;
 
             if (options.emptyValue && value === options.emptyValue)
                 value = '';
+
+            // apply recursion on value (never apply escape)
+            if (options.enableRecursion)
+                value = replaceTokensInString(value, regex, transformRegex, options, false, escapeType, counter, names + name);
 
             // apply transformation
             if (transformName)
@@ -339,13 +336,89 @@ var replaceTokensInFile = function (
                         break;
 
                     default:
-                        --localCounter.Transforms;
+                        --counter.Transforms;
                         logger.warn('  unknown transform: ' + transformName);
                         break;
                 }
             }
         }
 
+        // log value before escaping to show raw value and avoid secret leaks (escaped secrets are not replaced by ***)
+        logger.debug('  ' + name + ': ' + value + (usedDefaultValue ? ' (default value)' : ''));
+
+        if (enableEscape)
+        {
+            let valueEscapeType: string = escapeType;
+            if (transformName === 'noescape')
+            {
+                valueEscapeType = 'none';
+            }
+
+            switch (valueEscapeType) {
+                case 'json':
+                    value = value.replace(JSON_ESCAPE, match => {
+                        switch (match) {
+                            case '"':
+                            case '\\':
+                                return '\\' + match;
+                            
+                            case '\b': return "\\b";
+                            case '\f': return "\\f";
+                            case '\n': return "\\n";
+                            case '\r': return "\\r";
+                            case '\t': return "\\t";
+                        }
+                    });
+                    break;
+
+                case 'xml':
+                    value = value.replace(XML_ESCAPE, match => {
+                        switch (match) {
+                            case '<': return '&lt;';
+                            case '>': return '&gt;';
+                            case '&': return '&amp;';
+                            case '\'': return '&apos;';
+                            case '"': return '&quot;';
+                        }
+                    });
+                    break;
+
+                case 'custom':
+                    if (options.escapeChar && options.charsToEscape)
+                        for (var c of options.charsToEscape)
+                            // split and join to avoid regex and escaping escape char
+                            value = value.split(c).join(options.escapeChar + c);
+                    break;
+            }
+        }
+
+        return value;
+    });
+
+    return content;
+}
+
+var replaceTokensInFile = function (
+    filePath: string, 
+    outputPath: string,
+    regex: RegExp, 
+    transformRegex: RegExp,
+    options: Options): void {
+    logger.info('##[group]replacing tokens in: ' + filePath);
+
+    try
+    {
+        if (filePath !== outputPath)
+            logger.info('  output in: ' + outputPath);
+
+        // ensure encoding
+        let encoding: string = options.encoding;
+        if (options.encoding === ENCODING_AUTO)
+            encoding = getEncoding(filePath);
+
+        logger.debug('  using encoding: ' + encoding);
+
+        // escape type
         let escapeType: string = options.escapeType;
         if (escapeType === 'auto')
         {
@@ -364,85 +437,47 @@ var replaceTokensInFile = function (
             }
         }
 
-        if (transformName === 'noescape')
+        // read file and replace tokens
+        let localCounter: Counter = new Counter();
+        let content: string = iconv.decode(fs.readFileSync(filePath), encoding);
+
+        content = replaceTokensInString(content, regex, transformRegex, options, true, escapeType, localCounter);
+
+        // ensure outputPath directory exists
+        let mkdirSyncRecursive = function (p: string) {
+            if (fs.existsSync(p))
+                return;
+            
+            mkdirSyncRecursive(path.dirname(p));
+
+            fs.mkdirSync(p);
+            logger.debug('  created folder: ' + p);
+        };
+        mkdirSyncRecursive(path.dirname(path.resolve(outputPath)));
+
+        // write file & log
+        if (localCounter.Tokens)
         {
-            escapeType = 'none';
+            // always write if tokens found
+            fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
+        }
+        else if (filePath !== outputPath)
+        {
+            // copy original file if output is different (not using copyFileSync to support node 6.x)
+            fs.writeFileSync(outputPath, fs.readFileSync(filePath));
         }
 
-        // log value before escaping to show raw value and avoid secret leaks (escaped secrets are not replaced by ***)
-        logger.debug('  ' + name + ': ' + value + (usedDefaultValue ? ' (default value)' : ''));
+        logger.info('  ' + localCounter.Replaced + ' token(s) replaced out of ' + localCounter.Tokens + (localCounter.DefaultValues ? ' (using ' + localCounter.DefaultValues + ' default value(s))' : '') + (options.enableTransforms ? ' and running ' + localCounter.Transforms + ' transformation(s)' : ''));
 
-        switch (escapeType) {
-            case 'json':
-                value = value.replace(JSON_ESCAPE, match => {
-                    switch (match) {
-                        case '"':
-                        case '\\':
-                            return '\\' + match;
-                        
-                        case '\b': return "\\b";
-                        case '\f': return "\\f";
-                        case '\n': return "\\n";
-                        case '\r': return "\\r";
-                        case '\t': return "\\t";
-                    }
-                });
-                break;
-
-            case 'xml':
-                value = value.replace(XML_ESCAPE, match => {
-                    switch (match) {
-                        case '<': return '&lt;';
-                        case '>': return '&gt;';
-                        case '&': return '&amp;';
-                        case '\'': return '&apos;';
-                        case '"': return '&quot;';
-                    }
-                });
-                break;
-
-            case 'custom':
-                if (options.escapeChar && options.charsToEscape)
-                    for (var c of options.charsToEscape)
-                        // split and join to avoid regex and escaping escape char
-                        value = value.split(c).join(options.escapeChar + c);
-                break;
-        }
-
-        return value;
-    });
-
-    // ensure outputPath directory exists
-    let mkdirSyncRecursive = function (p: string) {
-        if (fs.existsSync(p))
-            return;
-        
-        mkdirSyncRecursive(path.dirname(p));
-
-        fs.mkdirSync(p);
-        logger.debug('  created folder: ' + p);
-    };
-    mkdirSyncRecursive(path.dirname(path.resolve(outputPath)));
-
-    // write file & log
-    if (localCounter.Tokens)
-    {
-        // always write if tokens found
-        fs.writeFileSync(outputPath, iconv.encode(content, encoding, { addBOM: options.writeBOM, stripBOM: null, defaultEncoding: null }));
+        globalCounters.Tokens += localCounter.Tokens;
+        globalCounters.Replaced += localCounter.Replaced;
+        globalCounters.DefaultValues += localCounter.DefaultValues;
+        globalCounters.Transforms += localCounter.Transforms;
     }
-    else if (filePath !== outputPath)
+    finally
     {
-        // copy original file if output is different (not using copyFileSync to support node 6.x)
-        fs.writeFileSync(outputPath, fs.readFileSync(filePath));
+        logger.info('##[endgroup]');
     }
-
-    logger.info('  ' + localCounter.Replaced + ' token(s) replaced out of ' + localCounter.Tokens + (localCounter.DefaultValues ? ' (using ' + localCounter.DefaultValues + ' default value(s))' : '') + (options.enableTransforms ? ' and running ' + localCounter.Transforms + ' transformation(s)' : ''));
-    logger.info('##[endgroup]');
-
-    globalCounters.Tokens += localCounter.Tokens;
-    globalCounters.Replaced += localCounter.Replaced;
-    globalCounters.DefaultValues += localCounter.DefaultValues;
-    globalCounters.Transforms += localCounter.Transforms;
 }
 
 var mapLogLevel = function (level: string): LogLevel {
@@ -502,6 +537,7 @@ async function run() {
             charsToEscape: tl.getInput('charsToEscape', false),
             verbosity: tl.getInput('verbosity', true),
             enableTransforms: tl.getBoolInput('enableTransforms', false),
+            enableRecursion: tl.getBoolInput('enableRecursion', false),
         };
         let transformPrefix: string = tl.getInput('transformPrefix', true);
         let transformSuffix: string = tl.getInput('transformSuffix', true);
@@ -570,19 +606,25 @@ async function run() {
 
                             logger.info('##[group]loading variables from: ' + filePath);
 
-                            let encoding: string = getEncoding(filePath);
-                            let extension: string = path.extname(filePath).toLowerCase();
-                            let content: string = iconv.decode(fs.readFileSync(filePath), encoding);
-                            let variables: any = extension === '.yaml' || extension === '.yml' 
-                                ? yaml.load(content)
-                                : JSON.parse(content);
+                            try
+                            {
+                                let encoding: string = getEncoding(filePath);
+                                let extension: string = path.extname(filePath).toLowerCase();
+                                let content: string = iconv.decode(fs.readFileSync(filePath), encoding);
+                                let variables: any = extension === '.yaml' || extension === '.yml' 
+                                    ? yaml.load(content)
+                                    : JSON.parse(content);
 
-                            let count: number = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
+                                let count: number = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
 
-                            logger.info('  ' + count + ' variable(s) loaded.');
-                            logger.info('##[endgroup]');
+                                logger.info('  ' + count + ' variable(s) loaded.');
 
-                            ++variableFilesCount;
+                                ++variableFilesCount;
+                            }
+                            finally
+                            {
+                                logger.info('##[endgroup]');
+                            }
                         });
                     }
                 });
@@ -595,11 +637,17 @@ async function run() {
         {
             logger.info('##[group]loading inline variables:');
 
-            let variables: any = yaml.load(inlineVariables);
-            inlineVariablesCount = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
+            try
+            {
+                let variables: any = yaml.load(inlineVariables);
+                inlineVariablesCount = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
 
-            logger.info('  ' + inlineVariablesCount + ' variable(s) loaded.');
-            logger.info('##[endgroup]');
+                logger.info('  ' + inlineVariablesCount + ' variable(s) loaded.');
+            }
+            finally
+            {
+                logger.info('##[endgroup]');
+            }
         }
 
         // initialize task
@@ -645,6 +693,7 @@ async function run() {
         telemetryEvent.defaultValue = options.defaultValue;
         telemetryEvent.actionOnNoFiles = actionOnNoFiles;
         telemetryEvent.inlineVariables = inlineVariablesCount;
+        telemetryEvent.enableRecursion = options.enableRecursion;
 
         // process files
         rules.forEach(rule => {
