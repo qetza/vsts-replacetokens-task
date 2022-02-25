@@ -537,7 +537,7 @@ async function run() {
             emptyValue: tl.getInput('emptyValue', false),
             escapeType: tl.getInput('escapeType', false),
             escapeChar: tl.getInput('escapeChar', false),
-            defaultValue: tl.getInput('defaultValue', false),
+            defaultValue: tl.getInput('defaultValue', false) ?? '',
             charsToEscape: tl.getInput('charsToEscape', false),
             verbosity: tl.getInput('verbosity', true),
             enableTransforms: tl.getBoolInput('enableTransforms', false),
