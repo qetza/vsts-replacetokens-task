@@ -58,8 +58,10 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
 - **Token prefix** (tokenPrefix): when using `custom` token pattern, the prefix of the tokens to search in the target files.
 - **Token suffix** (tokenSuffix): when using `custom` token pattern, the suffix of the tokens to search in the target files.
 - **Use legacy pattern** (useLegacyPattern): if checked whitespaces between the token prefix/suffix and the variable name are not ignored.  
-- **Empty value** (emptyValue): the variable value that will be replaced with an empty string.
-- **Default value** (defaultValue): the value to be used if a variable is not found. Do not set to disable default value feature. (to replace with an empty string set the default value to the _Empty value_)
+- **Use legacy empty/default feature** (useLegacyEmptyFeature): if check use the old empty & default values features. The new feature/code can now distinguish between an undefined variable and an defined empty variable without the use of a specific "empty" token (_Empty value_ parameter).
+- **Empty value** (emptyValue): with legacy empty/default feature: the variable value that will be replaced with an empty string.
+- **Use default value** (useDefaultValue): with new empty/default feature: if check replace variable not found with a default value specified in _Default value_.
+- **Default value** (defaultValue): the value to be used if a variable is not found. With legacy empty/default feature: do not set to disable default value feature with the legacy feature; to replace with an empty string set the default value to the _Empty value_.
 - **Enable transformations** (enableTransforms): if checked transformations can be applied on variable values. The following transformations are available:
   - _lower_: make variable value lower case. Example: `#{lower(MyVar)}#`
   - _upper_: make variable value upper case. Example: `#{upper(MyVar)}#`
@@ -97,6 +99,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 - Task **5.1.0**
   - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
   - Add support for recursive token replacement in values ([#201](https://github.com/qetza/vsts-replacetokens-task/issues/201)).
+  - Add optional reworked feature to manage out of the box empty and default values (this is a **breaking change** if enabled as the old _Empty value_ is not used anymore).
 - Task **4.2.0**
   - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
   - Add support for recursive token replacement in values ([#201](https://github.com/qetza/vsts-replacetokens-task/issues/201)).
