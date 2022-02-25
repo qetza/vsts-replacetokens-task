@@ -253,13 +253,33 @@
             "helpMarkDown": "If checked whitespaces between the token prefix/suffix and the variable name are not ignored."
         },
         {
+            "name": "useLegacyEmptyFeature",
+            "type": "boolean",
+            "label": "Use legacy empty/default feature",
+            "defaultValue": "true",
+            "groupName": "advanced",
+            "required": false,
+            "helpMarkDown": "If check use the old empty & default values features."
+        },
+        {
+            "name": "useDefaultValue",
+            "type": "boolean",
+            "label": "Use default value",
+            "defaultValue": "false",
+            "groupName": "advanced",
+            "required": false,
+            "helpMarkDown": "If check replace variable not found with a default value.",
+            "visibleRule": "useLegacyEmptyFeature == false"
+        },
+        {
             "name": "emptyValue",
             "type": "string",
             "label": "Empty value",
             "defaultValue": "(empty)",
             "groupName": "advanced",
             "required": false,
-            "helpMarkDown": "The variable value which will be replaced by an empty string."
+            "helpMarkDown": "The variable value which will be replaced by an empty string.",
+            "visibleRule": "useLegacyEmptyFeature == true"
         },
         {
             "name": "defaultValue",
@@ -268,7 +288,8 @@
             "defaultValue": "",
             "groupName": "advanced",
             "required": false,
-            "helpMarkDown": "The value to be used if a variable is not found. Do not set to disable default value feature."
+            "helpMarkDown": "The value to be used if a variable is not found. Do not set to disable default value feature with the legacy feature.",
+            "visibleRule": "useLegacyEmptyFeature == true || useDefaultValue == true"
         },
         {
             "name": "enableTelemetry",
