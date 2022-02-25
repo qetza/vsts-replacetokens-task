@@ -99,10 +99,11 @@ If you want to use tokens in XML based configuration files to be replaced during
 - Task **5.1.0**
   - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
   - Add support for recursive token replacement in values ([#201](https://github.com/qetza/vsts-replacetokens-task/issues/201)).
-  - Add optional reworked feature to manage out of the box empty and default values (this is a **breaking change** if enabled as the old _Empty value_ is not used anymore).
+  - Add optional reworked feature to simplify empty and default values (this is a **breaking change** if enabled as the old _Empty value_ is not used anymore but replaced by an empty variable declaration).
 - Task **4.2.0**
   - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
   - Add support for recursive token replacement in values ([#201](https://github.com/qetza/vsts-replacetokens-task/issues/201)).
+  - Add optional reworked feature to simplify empty and default values (this is a **breaking change** if enabled as the old _Empty value_ is not used anymore but replaced by an empty variable declaration).
 - Task **3.10.0**
   - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
   - Add support for recursive token replacement in values ([#201](https://github.com/qetza/vsts-replacetokens-task/issues/201)).

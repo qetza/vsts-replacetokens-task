@@ -38,7 +38,9 @@ interface Options {
     readonly verbosity: string,
     readonly defaultValue: string,
     readonly enableTransforms: boolean,
-    readonly enableRecursion: boolean
+    readonly enableRecursion: boolean,
+    readonly useLegacyEmptyFeature: boolean,
+    readonly useDefaultValue: boolean,
 }
 
 interface Rule {
@@ -274,7 +276,8 @@ var replaceTokensInString = function (
             value = externalVariables[name];
 
         let usedDefaultValue: boolean = false;
-        if (!value && options.defaultValue)
+        if ((options.useLegacyEmptyFeature && !value && options.defaultValue) // old empty/default feature
+            || (!options.useLegacyEmptyFeature && options.useDefaultValue && value === undefined)) // new empty/default feature
         {
             ++counter.DefaultValues;
 
@@ -282,7 +285,8 @@ var replaceTokensInString = function (
             usedDefaultValue = true;
         }
 
-        if (!value)
+        if ((options.useLegacyEmptyFeature && !value) // old empty/default feature
+            || (!options.useLegacyEmptyFeature && value === undefined)) // new empty/default feature
         {
             if (options.keepToken)
                 value = match;
@@ -308,7 +312,7 @@ var replaceTokensInString = function (
         {
             ++counter.Replaced;
 
-            if (options.emptyValue && value === options.emptyValue)
+            if (options.useLegacyEmptyFeature && options.emptyValue && value === options.emptyValue) // old empty/default feature
                 value = '';
 
             // apply recursion on value (never apply escape)
@@ -539,6 +543,8 @@ async function run() {
             verbosity: tl.getInput('verbosity', true),
             enableTransforms: tl.getBoolInput('enableTransforms', false),
             enableRecursion: tl.getBoolInput('enableRecursion', false),
+            useLegacyEmptyFeature: tl.getBoolInput('useLegacyEmptyFeature', false),
+            useDefaultValue: tl.getBoolInput('useDefaultValue', false),
         };
         let transformPrefix: string = tl.getInput('transformPrefix', true);
         let transformSuffix: string = tl.getInput('transformSuffix', true);
@@ -724,6 +730,8 @@ async function run() {
         telemetryEvent.actionOnNoFiles = actionOnNoFiles;
         telemetryEvent.inlineVariables = inlineVariablesCount;
         telemetryEvent.enableRecursion = options.enableRecursion;
+        telemetryEvent.useLegacyEmptyFeature = options.useLegacyEmptyFeature;
+        telemetryEvent.useDefaultValue = options.useDefaultValue;
 
         // process files
         rules.forEach(rule => {
