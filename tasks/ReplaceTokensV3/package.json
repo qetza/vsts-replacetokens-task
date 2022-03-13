@@ -1,0 +1,13 @@
+{
+  "name": "replacetokens-v3",
+  "author": "Guillaume Rouchon",
+  "dependencies": {
+    "azure-pipelines-task-lib": "^2.12.2",
+    "iconv-lite": "^0.4.15",
+    "js-yaml": "^4.0.0",
+    "jschardet": "^2.2.1"
+  },
+  "devDependencies": {
+    "@types/mocha": "^9.1.0"
+  }
+}

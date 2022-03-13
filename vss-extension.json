@@ -53,7 +53,7 @@
   },
   "files": [
     {
-      "path": "ReplaceTokens"
+      "path": "tasks"
     },
     {
       "path": "images",
@@ -68,7 +68,7 @@
         "ms.vss-distributed-task.tasks"
       ],
       "properties": {
-        "name": "ReplaceTokens"
+        "name": "tasks"
       }
     }
   ]

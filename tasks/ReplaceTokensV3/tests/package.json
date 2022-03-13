@@ -1,0 +1,9 @@
+{
+  "name": "replacetokens-v3",
+  "author": "Guillaume Rouchon",
+  "devDependencies": {
+    "@types/chai": "^4.3.0",
+    "chai": "^4.3.6",
+    "nock": "^9.0.11"
+  }
+}
