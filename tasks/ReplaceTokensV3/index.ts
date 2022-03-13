@@ -318,8 +318,8 @@ var replaceTokensInString = function (
             if (options.useLegacyEmptyFeature && options.emptyValue && value === options.emptyValue) // old empty/default feature
                 value = '';
 
-            // apply recursion on value (never apply escape)
-            if (options.enableRecursion)
+            // apply recursion on non-empty value (never apply escape)
+            if (value && options.enableRecursion)
                 value = replaceTokensInString(value, regex, transformRegex, options, false, escapeType, counter, names + name);
 
             // apply transformation
