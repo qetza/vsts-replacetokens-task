@@ -28,6 +28,5 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm install -g
-    - run: npm run make.js build
-    - run: npm run make.js test
-    - run: npm run make.js package
+    - run: node make.js build
+    
