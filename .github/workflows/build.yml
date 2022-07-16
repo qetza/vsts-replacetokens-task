@@ -28,6 +28,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm install -g
+    - run: npm install mocha
     - run: node make.js build
     - run: node make.js test
     
