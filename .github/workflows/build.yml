@@ -29,4 +29,5 @@ jobs:
     - run: npm ci
     - run: npm install -g
     - run: node make.js build
+    - run: node make.js test
     
