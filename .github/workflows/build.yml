@@ -16,7 +16,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
+        #node-version: [12.x, 14.x, 16.x]
+        node-version: [16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -30,5 +31,5 @@ jobs:
     - run: npm install -g
     - run: npm install mocha
     - run: node make.js build
-    - run: node make.js test
+    #- run: node make.js test
     
