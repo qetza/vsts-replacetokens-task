@@ -3,7 +3,7 @@
     "name": "replacetokens",
     "friendlyName": "Replace Tokens",
     "description": "Replace tokens in files",
-    "helpMarkDown": "[Learn more about this task](https://github.com/qetza/vsts-replacetokens-task/blob/master/ReplaceTokens/ReplaceTokensV4/README.md)",
+    "helpMarkDown": "[Learn more about this task](https://github.com/qetza/vsts-replacetokens-task/blob/master/tasks/ReplaceTokensV4/README.md)",
     "category": "Utility",
     "visibility": [
         "Build",
