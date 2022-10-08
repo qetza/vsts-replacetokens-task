@@ -23,8 +23,8 @@ If your are using a YAML file, add a task with the following syntax:
 ### Parameters
 The parameters of the task are described bellow, in parenthesis is the YAML name:
 
-- **Root directory** (rootDirectory): the base directory for searching files. If not specified the default working directory will be used.
-- **Target files** (targetFiles): the absolute or relative newline-separated paths to the files to replace tokens. Wildcards can be used (eg: `**\*.config` for all _.config_ files in all sub folders).
+- **Root directory** (rootDirectory): the base directory for searching files. If not specified the default working directory will be used. _Default is empty string_
+- **Target files** (targetFiles): the absolute or relative newline-separated paths to the files to replace tokens. Wildcards can be used (eg: `**\*.config` for all _.config_ files in all sub folders). _Default is `**/*.config`_
 > **Syntax**: {file path}[ => {output path}]  
 >
 > - `web.config` will replace tokens in _web.config_ and update the file.
@@ -42,38 +42,38 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
 > If you want to use negative pattern in target file, use a semi-colon `;` to separate the including pattern and the negative patterns. When using output syntax, only the wildcard in the first pattern will be used for generating the output path.
 > - `**\*.tokenized.config;!**\dev\*.config => c:\tmp\*.config` will replace tokens in all _{filename}.tokenized.config_ target files except those under a _dev_ directory and save the result in _c:\tmp\\{filename}.config_.
 
-- **Files encoding** (encoding): the files encoding used for reading and writing. The 'auto' value will determine the encoding based on the Byte Order Mark (BOM) if present; otherwise it will use ascii. (allowed values: auto, ascii, utf-7, utf-8, utf-16le, utf-16be, win1252 and iso88591)
-- **Write unicode BOM** (writeBOM): if checked writes an unicode Byte Order Mark (BOM).
-- **Escape type** (escapeType): specify how to escape variable values. Value `auto` uses the file extension (`.json` and `.xml`) to determine the escaping and `none` as fallback. (allowed values: auto, none, json, xml and custom)
+- **Files encoding** (encoding): the files encoding used for reading and writing. The 'auto' value will determine the encoding based on the Byte Order Mark (BOM) if present; otherwise it will use ascii. (allowed values: auto, ascii, utf-7, utf-8, utf-16le, utf-16be, win1252 and iso88591). _Default is `auto`_
+- **Write unicode BOM** (writeBOM): if checked writes an unicode Byte Order Mark (BOM). _Default is `true`_
+- **Escape type** (escapeType): specify how to escape variable values. Value `auto` uses the file extension (`.json` and `.xml`) to determine the escaping and `none` as fallback. _Default is `auto`_ (allowed values: auto, none, json, xml and custom)
 - **Escape character** (escapeChar): when using `custom` escape type, the escape character to use when escaping characters in the variable values.
 - **Characters to escape** (charsToEscape): when using `custom` escape type, characters in variable values to escape before replacing tokens.
-- **Verbosity** (verbosity): specify the level of log verbosity. (note: error and system debug are always on)
-- **Action on missing variable** (actionOnMissing): specify the action to take on a missing variable.
+- **Verbosity** (verbosity): specify the level of log verbosity. _Default is `normal`_ (note: error and system debug are always on) (allowed values: normal, detailed and off)
+- **Action on missing variable** (actionOnMissing): specify the action to take on a missing variable. _Default is `warn`_
   - _silently continue_ (continue): the task will continue without displaying any message.
   - _log warning_ (warn): the task will continue but log a warning with the missing variable name.
   - _fail_ (fail): the task will fail and log the missing variable name.
-- **Keep token for missing variable** (keepToken): if checked tokens with missing variables will not be replaced by empty string.
-- **Action on no file processed** (actionOnNoFiles):  specify the action when no file was processed. (allowed values: continue, warn, fail)
-- **Token pattern** (tokenPattern): specify the pattern of the tokens to search in the target files. (allowed values: default, rm, octopus, azpipelines, doublebraces and custom)
-- **Token prefix** (tokenPrefix): when using `custom` token pattern, the prefix of the tokens to search in the target files.
-- **Token suffix** (tokenSuffix): when using `custom` token pattern, the suffix of the tokens to search in the target files.
-- **Use legacy pattern** (useLegacyPattern): if checked whitespaces between the token prefix/suffix and the variable name are not ignored.  
-- **Use legacy empty/default feature** (useLegacyEmptyFeature): if check use the old empty & default values features. The new feature/code can now distinguish between an undefined variable and an defined empty variable without the use of a specific "empty" token (_Empty value_ parameter).
-- **Empty value** (emptyValue): with legacy empty/default feature: the variable value that will be replaced with an empty string.
-- **Use default value** (useDefaultValue): with new empty/default feature: if check replace variable not found with a default value specified in _Default value_.
-- **Default value** (defaultValue): the value to be used if a variable is not found. With legacy empty/default feature: do not set to disable default value feature with the legacy feature; to replace with an empty string set the default value to the _Empty value_.
-- **Enable transformations** (enableTransforms): if checked transformations can be applied on variable values. The following transformations are available:
+- **Keep token for missing variable** (keepToken): if checked tokens with missing variables will not be replaced by empty string. _Default is `false`_
+- **Action on no file processed** (actionOnNoFiles):  specify the action when no file was processed. _Default is `continue`_ (allowed values: continue, warn, fail)
+- **Token pattern** (tokenPattern): specify the pattern of the tokens to search in the target files. _Default is `default`_ (allowed values: default, rm, octopus, azpipelines, doublebraces and custom)
+- **Token prefix** (tokenPrefix): when using `custom` token pattern, the prefix of the tokens to search in the target files. _Default is `#{`_
+- **Token suffix** (tokenSuffix): when using `custom` token pattern, the suffix of the tokens to search in the target files. _Default is `}#`_
+- **Use legacy pattern** (useLegacyPattern): if checked whitespaces between the token prefix/suffix and the variable name are not ignored. _Default is `false`_
+- **Use legacy empty/default feature** (useLegacyEmptyFeature): if check use the old empty & default values features. The new feature/code can now distinguish between an undefined variable and an defined empty variable without the use of a specific "empty" token (_Empty value_ parameter). _Default is `true`_
+- **Empty value** (emptyValue): with legacy empty/default feature: the variable value that will be replaced with an empty string. _Default is `(empty)`_
+- **Use default value** (useDefaultValue): with new empty/default feature: if check replace variable not found with a default value specified in _Default value_. _Default is `false`_
+- **Default value** (defaultValue): the value to be used if a variable is not found. With legacy empty/default feature: do not set to disable default value feature with the legacy feature; to replace with an empty string set the default value to the _Empty value_. _Default is an empty string_
+- **Enable transformations** (enableTransforms): if checked transformations can be applied on variable values.  _Default is `false`_. The following transformations are available:
   - _lower_: make variable value lower case. Example: `#{lower(MyVar)}#`
   - _upper_: make variable value upper case. Example: `#{upper(MyVar)}#`
   - _noescape_: disable variable value escaping. (this can be used if you want to inject raw JSON or XML for example). Example: `#{noescape(MyVar)}#`
   - _base64_: encode variable value in BASE64. Example `#{base64(MyVar)}#`
-- **Transform prefix** (transformPrefix): The prefix between transform name and token name. Default: `(`.
-- **Transform suffix** (transformSuffix): The suffix after the token name. Default: `)`.
+- **Transform prefix** (transformPrefix): The prefix between transform name and token name. _Default is `(`_.
+- **Transform suffix** (transformSuffix): The suffix after the token name. _Default is `)`_.
 - **Variable files (JSON or YAML)** (variableFiles): the absolute or relative comma or newline-separated paths to the files containing additional variables. Wildcards can be used (eg: `vars\**\*.json` for all _.json_ files in all sub folders of _vars_). YAML files **must have** the `.yml`or `.yaml` extension otherwise the file is treated as JSON. Variables declared in files overrides variables defined in the pipeline.
 - **Inline variables (YAML syntax)** (inlineVariables): A YAML formatted string containing inline variables. Variables declared inline overrides variables defined in the pipeline and in files.
-- **Variable separator** (variableSeparator): the separtor to use in variable names for nested objects and arrays in inline variables or variable files. Example: `{ 'My': { 'Value': ['Hello World!'] } }` will create a variable _My.Value.0_ with the value _Hello World!_.
-- **Enable recursion in values** (enableRecursion): if checked token replacement (with transformation) will be run on values.Example: "Say: #{value1}#" with value1 = "hello #{upper(value2)}#" and value2 = "world!" will result in "hello WORLD!".
-- **Send anonymous usage telemetry** (enableTelemetry): if checked anonymous usage data (hashed collection and pipeline id, no file parameter values, no variable values) will be sent to the task author only to analyze task usage.
+- **Variable separator** (variableSeparator): the separtor to use in variable names for nested objects and arrays in inline variables or variable files. _Default is `.`_. Example: `{ 'My': { 'Value': ['Hello World!'] } }` will create a variable _My.Value.0_ with the value _Hello World!_.
+- **Enable recursion in values** (enableRecursion): if checked token replacement (with transformation) will be run on values.Example: "Say: #{value1}#" with value1 = "hello #{upper(value2)}#" and value2 = "world!" will result in "hello WORLD!". _Default is `false`_
+- **Send anonymous usage telemetry** (enableTelemetry): if checked anonymous usage data (hashed collection and pipeline id, no file parameter values, no variable values) will be sent to the task author only to analyze task usage. _Default is `true`_
 
 ### Output variables
 The task creates the following as output variables:
