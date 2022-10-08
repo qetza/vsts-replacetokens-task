@@ -250,8 +250,9 @@ var replaceTokensInString = function (
     enableEscape: boolean,
     escapeType: string,
     counter: Counter,
-    names: string[] = []): string {
+    names: string[]): string {
 
+    names = names || [];
     content = content.replace(regex, (match, name) => {
         ++counter.Tokens;
 
@@ -448,7 +449,7 @@ var replaceTokensInFile = function (
         let localCounter: Counter = new Counter();
         let content: string = iconv.decode(fs.readFileSync(filePath), encoding);
 
-        content = replaceTokensInString(content, regex, transformRegex, options, true, escapeType, localCounter);
+        content = replaceTokensInString(content, regex, transformRegex, options, true, escapeType, localCounter, []);
 
         // ensure outputPath directory exists
         let mkdirSyncRecursive = function (p: string) {

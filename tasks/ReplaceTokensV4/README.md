@@ -93,6 +93,9 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 4.2.1**
+- Fix compatibility with node 5.10.1 ([#277](https://github.com/qetza/vsts-replacetokens-task/issues/277)).
+
 **New in 4.2.0**
 - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
 - Add support for recursive token replacement in values ([#201](https://github.com/qetza/vsts-replacetokens-task/issues/201)).
