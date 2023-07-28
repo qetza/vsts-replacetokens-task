@@ -625,13 +625,22 @@ async function run() {
                                 const encoding: string = getEncoding(filePath);
                                 const extension: string = path.extname(filePath).toLowerCase();
                                 const content: string = iconv.decode(fs.readFileSync(filePath), encoding);
-                                const variables: any = extension === '.yaml' || extension === '.yml' 
-                                    ? yaml.load(content)
-                                    : JSON.parse(content);
 
-                                const count: number = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
+                                if (extension === '.yaml' || extension === '.yml')
+                                {
+                                    yaml.loadAll(content, (variables: any) => {
+                                        const count: number = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
+                    
+                                        logger.info('  ' + count + ' variable(s) loaded.');
+                                    });
+                                }
+                                else
+                                {
+                                    const variables: any = JSON.parse(content);
+                                    const count: number = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
 
-                                logger.info('  ' + count + ' variable(s) loaded.');
+                                    logger.info('  ' + count + ' variable(s) loaded.');
+                                }
 
                                 ++variableFilesCount;
                             }
@@ -653,10 +662,11 @@ async function run() {
 
             try
             {
-                const variables: any = yaml.load(inlineVariables);
-                inlineVariablesCount = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
+                yaml.loadAll(inlineVariables, (variables: any) => {
+                    inlineVariablesCount = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
 
-                logger.info('  ' + inlineVariablesCount + ' variable(s) loaded.');
+                    logger.info('  ' + inlineVariablesCount + ' variable(s) loaded.');
+                });
             }
             finally
             {
