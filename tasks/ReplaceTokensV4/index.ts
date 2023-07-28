@@ -321,7 +321,7 @@ var replaceTokensInString = function (
 
             // apply recursion on non-empty value (never apply escape)
             if (value && options.enableRecursion)
-                value = replaceTokensInString(value, regex, transformRegex, options, false, escapeType, counter, names + name);
+                value = replaceTokensInString(value, regex, transformRegex, options, false, escapeType, counter, names.concat(name));
 
             // apply transformation
             if (transformName)

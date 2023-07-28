@@ -93,6 +93,9 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 4.3.0**
+- Fix recursion cycle detection ([#308](https://github.com/qetza/vsts-replacetokens-task/issues/308)) (contributed by Chad Smith).
+
 **New in 4.2.1**
 - Fix compatibility with node 5.10.1 ([#277](https://github.com/qetza/vsts-replacetokens-task/issues/277)).
 
