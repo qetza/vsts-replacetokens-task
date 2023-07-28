@@ -628,11 +628,12 @@ async function run() {
 
                                 if (extension === '.yaml' || extension === '.yml')
                                 {
+                                    let count: number = 0;
                                     yaml.loadAll(content, (variables: any) => {
-                                        const count: number = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
-                    
-                                        logger.info('  ' + count + ' variable(s) loaded.');
+                                        count += loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
                                     });
+
+                                    logger.info('  ' + count + ' variable(s) loaded.');
                                 }
                                 else
                                 {
@@ -662,11 +663,12 @@ async function run() {
 
             try
             {
+                let count: number = 0;
                 yaml.loadAll(inlineVariables, (variables: any) => {
-                    inlineVariablesCount = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
-
-                    logger.info('  ' + inlineVariablesCount + ' variable(s) loaded.');
+                    count += loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
                 });
+
+                logger.info('  ' + count + ' variable(s) loaded.');
             }
             finally
             {
