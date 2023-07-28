@@ -7,6 +7,7 @@ import os = require('os');
 import crypto = require('crypto');
 import trackEvent, { TelemetryEvent } from './telemetry';
 import yaml = require('js-yaml');
+import stripJsonComments from './strip-json-comments';
 
 const ENCODING_AUTO: string = 'auto';
 const ENCODING_ASCII: string = 'ascii';
@@ -636,7 +637,7 @@ async function run() {
                                 }
                                 else
                                 {
-                                    const variables: any = JSON.parse(content);
+                                    const variables: any = JSON.parse(stripJsonComments(content));
                                     const count: number = loadVariablesFromJson(variables, '', variableSeparator, externalVariables);
 
                                     logger.info('  ' + count + ' variable(s) loaded.');

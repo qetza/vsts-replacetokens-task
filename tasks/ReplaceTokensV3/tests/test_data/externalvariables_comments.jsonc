@@ -1,0 +1,8 @@
+{
+  /*
+   * this is the var1 value
+   */
+  "var1": "var1_value",
+  "var2": "var2_value", // var2 value
+  "var3": "unknown \\\"value\\\" with /* comments */ and // inline comments" /* check comments in value */
+}

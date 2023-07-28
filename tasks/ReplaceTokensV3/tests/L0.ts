@@ -1566,6 +1566,35 @@ describe('ReplaceTokens v3 L0 suite', function() {
                 done);
         });
 
+        it('should replace with variables from JSON file with comments', function(done: Mocha.Done) {
+            // arrange
+            let tp = path.join(__dirname, 'externalVariables', 'L0_SingleFile.js');
+            let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+
+            process.env['__inputpath__'] = path.join(__dirname, 'test_tmp', 'variablefiles_json.json');
+            process.env['__variablespath__'] = path.join(__dirname, 'test_data', 'externalvariables_comments.jsonc');
+
+            let dataPath: string = path.join(__dirname, 'test_data', 'variables.json');
+            fs.copyFileSync(
+                dataPath, 
+                process.env['__inputpath__']);
+
+            // act
+            tr.run();
+
+            // assert
+            runValidation(
+                () => {
+                    tr.succeeded.should.equal(true, 'task succeeded');
+
+                    let actual: string = fs.readFileSync(process.env['__inputpath__'], 'utf8');
+                    let expected: string = fs.readFileSync(path.join(__dirname, 'test_data', 'variables.expected.json'), 'utf8');
+                    actual.should.equal(expected, 'replaced output');
+                },
+                tr,
+                done);
+        });
+
         it('should replace with variables from multiple JSON files', function(done: Mocha.Done) {
             // arrange
             let tp = path.join(__dirname, 'externalVariables', 'L0_MultipleFiles.js');
