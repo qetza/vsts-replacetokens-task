@@ -97,6 +97,7 @@ If you want to use tokens in XML based configuration files to be replaced during
 - Fix recursion cycle detection ([#308](https://github.com/qetza/vsts-replacetokens-task/issues/308)) (contributed by Chad Smith).
 - Add support for YAML multiple document files in variable files and inline variables ([#287](https://github.com/qetza/vsts-replacetokens-task/issues/287)).
 - Add support for JSON with comments variable files ([#299](https://github.com/qetza/vsts-replacetokens-task/issues/299)).
+- Add support for Node16 execution handler.
 
 **New in 5.1.0**
 - Add support for inline variables ([#252](https://github.com/qetza/vsts-replacetokens-task/issues/252)).
