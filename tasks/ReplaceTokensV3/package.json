@@ -2,7 +2,7 @@
   "name": "replacetokens-v3",
   "author": "Guillaume Rouchon",
   "dependencies": {
-    "azure-pipelines-task-lib": "^2.12.2",
+    "azure-pipelines-task-lib": "^4.4.0",
     "iconv-lite": "^0.4.15",
     "js-yaml": "^4.0.0",
     "jschardet": "^2.2.1"
