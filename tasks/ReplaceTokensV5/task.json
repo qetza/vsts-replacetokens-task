@@ -12,7 +12,7 @@
   "author": "Guillaume Rouchon",
   "version": {
     "Major": 5,
-    "Minor": 2,
+    "Minor": 3,
     "Patch": 0
   },
   "releaseNotes": "Migrate to Node10 handler (breaking change).<br/>Add Node16 handler.",

@@ -743,6 +743,35 @@ describe('ReplaceTokens v4 L0 suite', function() {
                 tr,
                 done);
         });
+
+        it('should indent replaced value with transform', function(done: Mocha.Done) {
+            // arrange
+            let tp = path.join(__dirname, 'transforms', 'L0_TransformValue.js');
+            let tr: ttm.MockTestRunner = new ttm.MockTestRunner(tp);
+
+            process.env['__inputpath__'] = path.join(__dirname, 'test_tmp', 'transform_indent.yml');
+            process.env['var1'] = 'line1\r\nline2\r\nline3';
+
+            let dataPath: string = path.join(__dirname, 'test_data', 'transform.indent.yml');
+            fs.copyFileSync(
+                dataPath, 
+                process.env['__inputpath__']);
+
+            // act
+            tr.run();
+
+            // assert
+            runValidation(
+                () => {
+                    tr.succeeded.should.equal(true, 'task succeeded');
+
+                    let actual: string = fs.readFileSync(process.env['__inputpath__'], 'utf8');
+                    let expected: string = fs.readFileSync(path.join(__dirname, 'test_data', 'transform.indent.expected.yml'), 'utf8');
+                    actual.should.equal(expected, 'replaced output');
+                },
+                tr,
+                done);
+        });
     });
 
     describe('#action on missing', function() {

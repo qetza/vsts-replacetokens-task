@@ -26,6 +26,7 @@ const JSON_ESCAPE: RegExp = /["\\\b\f\n\r\t]/g;
 const WIN32_DIRECTORY_SEPARATOR: RegExp = /\\/g;
 const POSIX_DIRECTORY_SEPARATOR: RegExp = /\//g;
 const OUTPUT_WILDCARD: RegExp = /\*/g;
+const NEWLINE: RegExp = /(\r?\n)/g;
 
 interface Options {
     readonly encoding: string, 
@@ -259,6 +260,7 @@ var replaceTokensInString = function (
 
         // extract transformation
         let transformName: string = null;
+        let transformParameters: string[] = [];
         if (options.enableTransforms)
         {
             let m = name.match(transformRegex);
@@ -266,8 +268,9 @@ var replaceTokensInString = function (
             {
                 ++counter.Transforms;
 
-                transformName = m[1];
-                name = m[2];
+                transformName = (m[1] || '').toLowerCase();
+                transformParameters = m[2].split(',').map((a: string) => a.trim()); // support parameters
+                name = transformParameters.shift();
             }
         }
 
@@ -335,13 +338,21 @@ var replaceTokensInString = function (
                     case 'upper':
                         value = value.toUpperCase();
                         break;
-                    
+
                     case 'noescape':
                         // nothing done here, disable escaping later
                         break;
 
                     case 'base64':
                         value = Buffer.from(value).toString('base64');
+                        break;
+
+                    case 'indent':
+                        var indentText = ' '.repeat(parseInt(transformParameters[0]) || 2);
+                        value = value.replace(NEWLINE, '$1' + indentText)
+
+                        if ((transformParameters[1] || '').toLocaleLowerCase() === 'true') // indent first line
+                            value = indentText + value;
                         break;
 
                     default:

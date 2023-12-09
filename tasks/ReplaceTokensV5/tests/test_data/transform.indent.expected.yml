@@ -1,0 +1,14 @@
+noargs: |
+  line1
+  line2
+  line3
+
+size: |
+    line1
+    line2
+    line3
+
+firstline: |
+    line1
+    line2
+    line3

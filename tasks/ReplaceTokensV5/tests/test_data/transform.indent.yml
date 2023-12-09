@@ -1,0 +1,8 @@
+noargs: |
+  #{indent(var1)}#
+
+size: |
+    #{indent(var1, 4)}#
+
+firstline: |
+#{indent(var1, 4, true)}#

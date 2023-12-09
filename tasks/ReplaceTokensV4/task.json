@@ -12,7 +12,7 @@
     "author": "Guillaume Rouchon",
     "version": {
         "Major": 4,
-        "Minor": 3,
+        "Minor": 4,
         "Patch": 0
     },
     "releaseNotes": "Added output variables (breaking change).<br/>Added token pattern dropdown (breaking change).",

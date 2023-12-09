@@ -24,7 +24,7 @@ If your are using a YAML file, add a task with the following syntax:
 The parameters of the task are described bellow, in parenthesis is the YAML name:
 
 - **Root directory** (rootDirectory): the base directory for searching files. If not specified the default working directory will be used. _Default is empty string_
-- **Target files** (targetFiles): the absolute or relative newline-separated paths to the files to replace tokens. Wildcards can be used (eg: `**\*.config` for all _.config_ files in all sub folders). _Default is `**/*.config`_
+- **Target files** (targetFiles): the absolute or relative newline-separated or comma-separated paths to the files to replace tokens. Wildcards can be used (eg: `**\*.config` for all _.config_ files in all sub folders). _Default is `**/*.config`_
 > **Syntax**: {file path}[ => {output path}]  
 >
 > - `web.config` will replace tokens in _web.config_ and update the file.
@@ -67,6 +67,7 @@ The parameters of the task are described bellow, in parenthesis is the YAML name
   - _upper_: make variable value upper case. Example: `#{upper(MyVar)}#`
   - _noescape_: disable variable value escaping. (this can be used if you want to inject raw JSON or XML for example). Example: `#{noescape(MyVar)}#`
   - _base64_: encode variable value in BASE64. Example `#{base64(MyVar)}#`
+  - _indent_: indent newlines with support of 2 parameters; the first parameter after the variable name is the indent size (default `2`) and the second is a boolean specifying if the first line must be indented also (default `false`). Examples `#{indent(MyVar)}#`, `#{indent(MyVar, 4, true)}#`
 - **Transform prefix** (transformPrefix): The prefix between transform name and token name. _Default is `(`_.
 - **Transform suffix** (transformSuffix): The suffix after the token name. _Default is `)`_.
 - **Variable files (JSON or YAML)** (variableFiles): the absolute or relative comma or newline-separated paths to the files containing additional variables. Wildcards can be used (eg: `vars\**\*.json` for all _.json_ files in all sub folders of _vars_). YAML files **must have** the `.yml`or `.yaml` extension otherwise the file is treated as JSON. Variables declared in files overrides variables defined in the pipeline.
@@ -95,6 +96,14 @@ If you want to use tokens in XML based configuration files to be replaced during
   - replace tokens in your updated configuration file
 
 ## Release notes
+**New in 4.6.0**
+- Task **5.3.0**
+  - Add support for `indent` transformation with indent size and indent first line parameters ([326](https://github.com/qetza/vsts-replacetokens-task/issues/326)).
+- Task **4.4.0**
+  - Add support for `indent` transformation with indent size and indent first line parameters ([326](https://github.com/qetza/vsts-replacetokens-task/issues/326)).
+- Task **3.12.0**
+  - Add support for `indent` transformation with indent size and indent first line parameters ([326](https://github.com/qetza/vsts-replacetokens-task/issues/326)).
+
 **New in 4.5.0**
 - Task **5.2.0**
   - Fix recursion cycle detection ([#308](https://github.com/qetza/vsts-replacetokens-task/issues/308)) (contributed by Chad Smith).

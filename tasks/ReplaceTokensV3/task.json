@@ -12,7 +12,7 @@
     "author": "Guillaume Rouchon",
     "version": {
         "Major": 3,
-        "Minor": 11,
+        "Minor": 12,
         "Patch": 0
     },
     "instanceNameFormat": "Replace tokens in $(targetFiles)",
