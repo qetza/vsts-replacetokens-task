@@ -1,6 +1,8 @@
-[![Donate](images/donate.png)](https://www.paypal.me/qetza/5)
+# [ARCHIVED] Replace Tokens task
+[![donate](https://img.shields.io/badge/donate-paypal-blue)](https://www.paypal.com/donate/?hosted_button_id=CCEAVYA8DUFD8)
 
-# Replace Tokens task
+This GitHub project has been archived. Ongoing development on this project can be found in https://github.com/qetza/replacetokens-task.
+
 Azure Pipelines extension that replace tokens in **text** files with variable values.
 
 ## Usage
